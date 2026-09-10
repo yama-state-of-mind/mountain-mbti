@@ -45,17 +45,25 @@ function showScreen(name) {
 
 
 /* ---------- スタート画面のキャラクター配置 ----------
-   上段は高山の生き物（P）、下段は森の生き物（E）。
-   4列×2段で並べるので、目的軸が上下で分かれて見えます */
+   山のイラストの上に孤峰・稜線（高山）、ページ下部に静林・陽だまり（森）。
+   グループごとに帯を作り、それぞれの淡色を敷く */
 function renderCast() {
   if (typeof characterSVG !== "function") return;
   const codes = Object.keys(TYPES);
-  const fill = (id, list) => {
+
+  const fill = (id, keys) => {
     const box = document.getElementById(id);
-    if (box) box.innerHTML = list.map((c) => characterSVG(c, "char")).join("");
+    if (!box) return;
+    box.innerHTML = keys.map((key) => {
+      const g = GROUPS[key];
+      const list = codes.filter((c) => c.slice(0, 2) === key);
+      return `<div class="cast-group" style="background:${g.band}">
+        ${list.map((c) => characterSVG(c, "char")).join("")}
+      </div>`;
+    }).join("");
   };
-  fill("cast-top", codes.filter((c) => c.charAt(0) === "P"));
-  fill("cast-bottom", codes.filter((c) => c.charAt(0) === "E"));
+  fill("cast-top", ["PS", "PG"]);
+  fill("cast-bottom", ["ES", "EG"]);
 }
 renderCast();
 
@@ -266,7 +274,10 @@ function showResult() {
   const { code, detail } = calcResult();
   const type = TYPES[code] || { name: "未知のタイプ", desc: "" };
 
-  $("#result-code").textContent = code;
+  const g = groupOf(code);
+  const plate = $("#result-code");
+  plate.textContent = code;
+  plate.style.background = g.deep;
   const ch = CHARACTERS[code];
   $("#result-char").innerHTML = characterSVG(code, "char char-lg");
   $("#result-name").textContent = type.name;
@@ -286,7 +297,7 @@ function showResult() {
         <div class="match-body">
           <p class="match-label">${m.label}</p>
           <p class="match-name">
-            <span class="match-code">${m.code}</span>
+            <span class="match-code" style="background:${groupOf(m.code).deep}">${m.code}</span>
             <a class="match-link" href="types.html#${m.code}">${t.name}</a>
           </p>
           <p class="match-why">${m.why}</p>

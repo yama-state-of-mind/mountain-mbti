@@ -340,10 +340,31 @@ EGFA: { animal: "ノウサギ", item: "自撮り棒つきスマホ", svg: `
 
 /* ---------- キャラクターのSVGを組み立てる ----------
    高山の生き物は青緑の背景、森の生き物はベージュの背景 */
+/* ---------- 4グループの色 ----------
+   目的軸（高山 P / 森 E）× 仲間軸（単独 S / 群れ G）で4分類。
+   band  : ページ背景に敷く淡色
+   circle: キャラクターの背景円（bandより一段淡い）
+   deep  : コードのプレート色（白抜き文字）*/
+const GROUPS = {
+  PS: { name: "孤峰",     lead: "ひとりで高みへ", axis: "ピークハント × ソロ",
+        band: "#E3EBF0", circle: "#E3EDF3", deep: "#3E5C6E" },
+  PG: { name: "稜線",     lead: "仲間と高みへ",   axis: "ピークハント × グループ",
+        band: "#F3E6E1", circle: "#F5E7E1", deep: "#B5533A" },
+  ES: { name: "静林",     lead: "ひとりで森を",   axis: "エンジョイ × ソロ",
+        band: "#E2ECE4", circle: "#E1EDE5", deep: "#4E7A57" },
+  EG: { name: "陽だまり", lead: "仲間と森を",     axis: "エンジョイ × グループ",
+        band: "#F4EBDB", circle: "#F6EDDC", deep: "#A5761F" },
+};
+
+/* コードからグループを引く（PSLC → PS） */
+function groupOf(code) {
+  return GROUPS[code.slice(0, 2)] || GROUPS.PS;
+}
+
 function characterSVG(code, cls, noBadge) {
   const c = CHARACTERS[code];
   if (!c) return "";
-  const bg = code.charAt(0) === "P" ? "#E7EDE9" : "#EFEAE0";
+  const bg = groupOf(code).circle;
   const badge = noBadge ? "" : `<circle cx="80" cy="80" r="76" fill="${bg}"/>`;
   const label = noBadge ? `aria-hidden="true"` : `role="img" aria-label="${c.animal}"`;
   return `<svg viewBox="0 0 160 160" class="${cls || "char"}" ${label}>${badge}${c.svg}</svg>`;

@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1E3A31">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,14 +17,26 @@
 
   <header class="list-head">
     <h1>16タイプ一覧</h1>
+    <p class="list-en"><b>16</b> TYPES OF HIKERS</p>
     <p>それぞれのタイプに、山の生き物のキャラクターがいます。</p>
   </header>
 
   <section class="legend">
+    <h2>4つのアルファベットの意味</h2>
+    <p>診断結果は <b>PSLC</b> のような4文字で表されます。1文字ずつが、山との付き合い方を分ける軸になっています。</p>
+    <div class="axis-table" id="axis-table"><!-- JSが4軸を生成 --></div>
+  </section>
+
+  <section class="legend">
+    <h2>16タイプは4つのグループに分かれます</h2>
+    <p>最初の2文字、つまり<b>目的</b>と<b>仲間</b>の組み合わせで、16タイプは大きく4つに分かれます。このページもこの順に並んでいます。</p>
+    <div class="group-table" id="group-table"><!-- JSが4グループを生成 --></div>
+  </section>
+
+  <section class="legend">
     <h2>キャラクターの読み方</h2>
-    <p><b>生き物</b>は、その人が山とどう関わるかを表しています。カモシカやライチョウのような<b>高山の生き物</b>は山頂を目指すピークハント派、タヌキやリスのような<b>森の生き物</b>は過程を楽しむエンジョイ派です。背景の色も、高山は青緑、森はベージュで分かれています。</p>
-    <p>さらに、イヌワシやキツネのような<b>単独で暮らす生き物</b>はソロ派、ニホンザルやシカのような<b>群れで暮らす生き物</b>はグループ派になります。</p>
-    <p><b>持ちもの</b>は、その人の判断のしかたを表しています。地形図・ホイッスル・カメラのような<b>道具や情報</b>を持っているのは計画・データ派、マグカップ・花・バンダナのような<b>嗜好品や身につけるもの</b>を持っているのは感覚・フィーリング派です。</p>
+    <p><b>生き物</b>は、最初の2文字を表しています。カモシカやライチョウのような<b>高山の生き物</b>はピークハント派、タヌキやリスのような<b>森の生き物</b>はエンジョイ派。イヌワシやキツネのような<b>単独で暮らす生き物</b>はソロ派、ニホンザルやシカのような<b>群れで暮らす生き物</b>はグループ派です。</p>
+    <p><b>持ちもの</b>は、後ろの2文字を表しています。地形図・ホイッスル・カメラのような<b>道具や情報</b>を持っているのは計画・データ派、マグカップ・花・バンダナのような<b>嗜好品や身につけるもの</b>を持っているのは感覚・フィーリング派です。</p>
   </section>
 
   <nav class="type-nav" id="type-nav" aria-label="タイプの目次"><!-- JSが生成 --></nav>
@@ -54,13 +66,53 @@ function findMatches(code) {
   ];
 }
 
-document.getElementById("type-nav").innerHTML = Object.keys(TYPES).map((code) =>
-  `<a href="#${code}">${characterSVG(code, "char nav-char")}<span>${code}</span></a>`
-).join("");
+/* 4軸の解説 */
+const AXIS_MEMO = {
+  PE: "山頂に立つことに価値を置くか、そこに至る過程を味わうか",
+  SG: "ひとりで山と向き合う時間か、誰かと分け合う時間か",
+  LF: "数字と情報で組み立てるか、その日の感覚で決めるか",
+  CA: "備えを厚くして安全側に振るか、身軽に踏み込むか",
+};
+document.getElementById("axis-table").innerHTML = AXES.map((ax, i) => `
+  <div class="ax-row">
+    <span class="ax-pos">${i + 1}文字目</span>
+    <div class="ax-main">
+      <p class="ax-title">${ax.title}</p>
+      <p class="ax-pair"><b>${ax.a}</b> ${ax.aName}　／　<b>${ax.b}</b> ${ax.bName}</p>
+      <p class="ax-memo">${AXIS_MEMO[ax.id]}</p>
+    </div>
+  </div>`).join("");
 
-document.getElementById("type-list").innerHTML = Object.keys(TYPES).map((code) => {
+/* 4グループの解説 */
+const ORDER = ["PS", "PG", "ES", "EG"];
+document.getElementById("group-table").innerHTML = ORDER.map((key) => {
+  const g = GROUPS[key];
+  return `<a class="gr-row" href="#g-${key}" style="background:${g.band}">
+    <span class="gr-mark" style="background:${g.deep}"></span>
+    <span class="gr-body">
+      <span class="gr-name">${g.name}</span>
+      <span class="gr-lead">${g.lead}</span>
+      <span class="gr-axis">${g.axis}　${key}＊＊</span>
+    </span>
+  </a>`;
+}).join("");
+
+document.getElementById("type-nav").innerHTML = ORDER.map((key) => {
+  const g = GROUPS[key];
+  const list = Object.keys(TYPES).filter((c) => c.slice(0, 2) === key);
+  return `<div class="nav-set">
+    <p class="nav-label" style="color:${g.deep}">${g.name}</p>
+    <div class="nav-row">${list.map((code) =>
+      `<a href="#${code}" style="background:${g.band}">
+        ${characterSVG(code, "char nav-char")}<span style="color:${g.deep}">${code}</span></a>`
+    ).join("")}</div>
+  </div>`;
+}).join("");
+
+function typeCard(code) {
   const t = TYPES[code];
   const c = CHARACTERS[code] || { animal: "", item: "" };
+  const g = groupOf(code);
   const axisText = code.split("").map((ch, i) => {
     const ax = AXES[i];
     return `<span class="ax"><b>${ch}</b>${ch === ax.a ? ax.aName : ax.bName}</span>`;
@@ -70,11 +122,11 @@ document.getElementById("type-list").innerHTML = Object.keys(TYPES).map((code) =
     const mt = TYPES[m.code];
     if (!mt) return "";
     return `
-      <a class="match" href="#${m.code}">
+      <a class="match" href="#${m.code}" style="background:${groupOf(m.code).band}">
         ${characterSVG(m.code, "char char-sm")}
         <span class="match-body">
           <span class="match-label">${m.label}</span>
-          <span class="match-name"><span class="match-code">${m.code}</span>${mt.name}</span>
+          <span class="match-name"><span class="match-code" style="background:${groupOf(m.code).deep}">${m.code}</span>${mt.name}</span>
           <span class="match-why">${m.why}</span>
         </span>
       </a>`;
@@ -85,7 +137,7 @@ document.getElementById("type-list").innerHTML = Object.keys(TYPES).map((code) =
       <header class="ti-head">
         ${characterSVG(code, "char ti-char")}
         <div class="ti-title">
-          <span class="tc-code">${code}</span>
+          <span class="tc-code" style="background:${g.deep}">${code}</span>
           <h2 class="ti-name">${t.name}</h2>
           <p class="tc-animal">（${c.animal}）</p>
           <p class="tc-copy">「${t.copy}」</p>
@@ -111,6 +163,17 @@ document.getElementById("type-list").innerHTML = Object.keys(TYPES).map((code) =
 
       <p class="ti-item">持ちもの：${c.item}</p>
     </article>`;
+}
+
+document.getElementById("type-list").innerHTML = ORDER.map((key) => {
+  const g = GROUPS[key];
+  const list = Object.keys(TYPES).filter((c) => c.slice(0, 2) === key);
+  return `
+    <h2 class="group-head" id="g-${key}" style="border-color:${g.deep}">
+      <span class="gh-name" style="color:${g.deep}">${g.name}</span>
+      <span class="gh-axis">${g.axis}</span>
+    </h2>
+    ${list.map(typeCard).join("")}`;
 }).join("");
 </script>
 </body>

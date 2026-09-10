@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>YAMA TYPE｜登山タイプ診断</title>
+<meta name="description" content="12の質問であなたの登山スタイルを16タイプに診断。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ========== スタート画面 ========== -->
+  <section id="screen-start" class="screen is-active">
+    <div class="hero">
+      <svg class="hero-mountains" viewBox="0 0 320 140" aria-hidden="true">
+        <path class="mt back" d="M0 130 L70 40 L110 90 L160 20 L215 95 L260 55 L320 130 Z"/>
+        <path class="mt front" d="M0 140 L55 75 L95 115 L150 55 L210 130 L250 95 L320 140 Z"/>
+        <circle class="sun" cx="262" cy="30" r="14"/>
+        <path class="snow" d="M150 55 L162 72 L155 70 L148 78 L141 68 Z"/>
+      </svg>
+      <p class="hero-eyebrow">YAMA TYPE</p>
+      <h1 class="hero-title">登山タイプ診断</h1>
+      <p class="hero-lead">
+        12の質問に答えるだけで、あなたの登山スタイルを<strong>16タイプ</strong>に分類。<br>
+        目的・仲間・計画・リスクの4つの軸から、あなたらしい山との付き合い方が見えてきます。
+      </p>
+      <button class="btn btn-primary" id="btn-start">診断をはじめる</button>
+      <p class="hero-note">所要時間 約2分・全12問</p>
+    </div>
+  </section>
+
+  <!-- ========== 質問画面（1ページ6問 × 2ページ） ========== -->
+  <section id="screen-quiz" class="screen">
+    <header class="quiz-header">
+      <div class="progress-track" role="progressbar" aria-label="回答の進み具合" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="progress-bar-wrap">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p class="progress-text"><span id="progress-count">0</span> / 12 問</p>
+    </header>
+
+    <div class="quiz-viewport">
+      <div class="quiz-page" id="quiz-page"><!-- JSが質問カードを生成 --></div>
+    </div>
+
+    <footer class="quiz-footer">
+      <button class="btn btn-ghost" id="btn-back">もどる</button>
+      <button class="btn btn-primary" id="btn-next">つぎへ</button>
+    </footer>
+  </section>
+
+  <!-- ========== 結果画面 ========== -->
+  <section id="screen-result" class="screen">
+    <div class="result">
+      <p class="result-eyebrow">あなたの登山タイプは</p>
+      <div class="result-code" id="result-code"><!-- 4文字タイル --></div>
+      <h2 class="result-name" id="result-name"></h2>
+      <p class="result-desc" id="result-desc"></p>
+
+      <div class="axes" id="result-axes"><!-- 4軸バー --></div>
+
+      <div class="result-actions">
+        <a class="btn btn-share" id="btn-share" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.2l7.3-8.3L1.6 2H8l4.4 5.9L18.9 2zm-1.1 18h1.7L7.1 3.9H5.3L17.8 20z"/></svg>
+          結果をシェアする
+        </a>
+        <button class="btn btn-ghost" id="btn-retry">もう一度診断する</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

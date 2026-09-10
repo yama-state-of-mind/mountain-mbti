@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>16タイプ一覧｜登山タイプ診断</title>
+<meta name="description" content="登山タイプ診断の16タイプを、山の生き物のキャラクターと一緒に紹介します。">
+<meta name="theme-color" content="#1E3A31">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="list-page">
+
+  <header class="list-head">
+    <h1>16タイプ一覧</h1>
+    <p>それぞれのタイプに、山の生き物のキャラクターがいます。</p>
+  </header>
+
+  <section class="legend">
+    <h2>キャラクターの読み方</h2>
+    <p><b>生き物</b>は、その人が山とどう関わるかを表しています。カモシカやライチョウのような<b>高山の生き物</b>は山頂を目指すピークハント派、タヌキやリスのような<b>森の生き物</b>は過程を楽しむエンジョイ派です。背景の色も、高山は青緑、森はベージュで分かれています。</p>
+    <p>さらに、イヌワシやキツネのような<b>単独で暮らす生き物</b>はソロ派、ニホンザルやシカのような<b>群れで暮らす生き物</b>はグループ派になります。</p>
+    <p><b>持ちもの</b>は、その人の判断のしかたを表しています。地形図・ホイッスル・カメラのような<b>道具や情報</b>を持っているのは計画・データ派、マグカップ・花・バンダナのような<b>嗜好品や身につけるもの</b>を持っているのは感覚・フィーリング派です。</p>
+  </section>
+
+  <div class="type-grid" id="type-grid"><!-- JSが16枚を生成 --></div>
+
+  <p class="list-foot hero-link"><a href="index.html">診断をはじめる</a></p>
+
+</div>
+
+<script src="data.js"></script>
+<script src="characters.js"></script>
+<script>
+/* data.js の TYPES と characters.js の CHARACTERS を突き合わせて一覧を作る。
+   タイプを増やしたときも、この2ファイルを直すだけで一覧に反映されます。 */
+document.getElementById("type-grid").innerHTML = Object.keys(TYPES).map((code) => {
+  const t = TYPES[code];
+  const c = CHARACTERS[code] || { animal: "", item: "" };
+  return `
+    <article class="type-card">
+      ${characterSVG(code)}
+      <span class="tc-code">${code}</span>
+      <h2 class="tc-name">${t.name}</h2>
+      <p class="tc-animal">（${c.animal}）</p>
+      <p class="tc-copy">「${t.copy}」</p>
+      <p class="tc-item">持ちもの：${c.item}</p>
+    </article>`;
+}).join("");
+</script>
+</body>
+</html>

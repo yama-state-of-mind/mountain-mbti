@@ -4,7 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>YAMA TYPE｜登山タイプ診断</title>
-<meta name="description" content="12の質問であなたの登山スタイルを16タイプに診断。">
+<meta name="description" content="12の質問であなたの登山スタイルを16タイプに診断。目的・仲間・計画・リスクの4つの軸から、あなたらしい山との付き合い方が見えてきます。">
+
+<!-- ========== SNSシェア用（OGP） ==========
+     公開URLが変わったら og:url と og:image の2か所を書き換えてください -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="YAMA TYPE">
+<meta property="og:title" content="登山タイプ診断｜YAMA TYPE">
+<meta property="og:description" content="12の質問で、あなたの登山スタイルを16タイプに分類。目的・仲間・計画・リスクの4軸で診断します。">
+<meta property="og:url" content="https://mountain-mbti.vercel.app/">
+<meta property="og:image" content="https://mountain-mbti.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="登山タイプ診断 YAMA TYPE">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="登山タイプ診断｜YAMA TYPE">
+<meta name="twitter:description" content="12の質問で、あなたの登山スタイルを16タイプに分類。">
+<meta name="twitter:image" content="https://mountain-mbti.vercel.app/og.png">
+
+<meta name="theme-color" content="#1E3A31">
+<link rel="canonical" href="https://mountain-mbti.vercel.app/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -17,12 +38,15 @@
   <!-- ========== スタート画面 ========== -->
   <section id="screen-start" class="screen is-active">
     <div class="hero">
+      <div class="hero-stage">
       <svg class="hero-mountains" viewBox="0 0 320 140" aria-hidden="true">
         <path class="mt back" d="M0 130 L70 40 L110 90 L160 20 L215 95 L260 55 L320 130 Z"/>
         <path class="mt front" d="M0 140 L55 75 L95 115 L150 55 L210 130 L250 95 L320 140 Z"/>
         <circle class="sun" cx="262" cy="30" r="14"/>
         <path class="snow" d="M150 55 L162 72 L155 70 L148 78 L141 68 Z"/>
       </svg>
+      <div class="cast" id="cast"><!-- 16体をJSが散らす --></div>
+      </div>
       <p class="hero-eyebrow">YAMA TYPE</p>
       <h1 class="hero-title">登山タイプ診断</h1>
       <p class="hero-lead">
@@ -31,16 +55,46 @@
       </p>
       <button class="btn btn-primary" id="btn-start">診断をはじめる</button>
       <p class="hero-note">所要時間 約2分・全12問</p>
+      <p class="hero-link"><a href="types.html">16タイプの一覧を見る</a></p>
     </div>
   </section>
 
-  <!-- ========== 質問画面（1ページ6問 × 2ページ） ========== -->
+  <!-- ========== 質問画面 ========== -->
   <section id="screen-quiz" class="screen">
     <header class="quiz-header">
-      <div class="progress-track" role="progressbar" aria-label="回答の進み具合" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="progress-bar-wrap">
-        <div class="progress-fill" id="progress-fill"></div>
+      <div class="climb" id="progress-bar-wrap" role="progressbar"
+           aria-label="登頂までの進み具合" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0">
+        <svg class="climb-svg" viewBox="0 0 340 50">
+          <!-- 登山道（未踏） -->
+          <path id="climb-path" class="climb-route"
+                d="M14 44 L150 30 L190 31 L317 14"/>
+          <!-- 登山道（歩いた分） -->
+          <path id="climb-progress" class="climb-done"
+                d="M14 44 L150 30 L190 31 L317 14"/>
+
+          <!-- 五合目の道標 -->
+          <g id="sign-mid" class="sign">
+            <path class="pole" d="M170 30.4 L170 24"/>
+            <rect class="board" x="143" y="14" width="54" height="10" rx="3"/>
+            <text class="board-text" x="170" y="21.4">5th Station</text>
+          </g>
+
+          <!-- 山頂の道標 -->
+          <g id="sign-peak" class="sign">
+            <path class="pole" d="M317 14 L317 11"/>
+            <rect class="board" x="298" y="1" width="38" height="10" rx="3"/>
+            <text class="board-text" x="317" y="8.4">Peak!</text>
+          </g>
+
+          <!-- 登山口 -->
+          <circle class="climb-start" cx="14" cy="44" r="6.5"/>
+          <!-- 現在地 -->
+          <circle id="climb-marker" class="climb-marker" cx="14" cy="44" r="4.5"/>
+
+          <!-- 残り問数 -->
+          <text class="climb-count" x="337" y="46"><tspan id="progress-count">0</tspan> / 12</text>
+        </svg>
       </div>
-      <p class="progress-text"><span id="progress-count">0</span> / 12 問</p>
     </header>
 
     <div class="quiz-viewport">
@@ -57,11 +111,28 @@
   <section id="screen-result" class="screen">
     <div class="result">
       <p class="result-eyebrow">あなたの登山タイプは</p>
-      <div class="result-code" id="result-code"><!-- 4文字タイル --></div>
+      <p class="result-code" id="result-code"></p>
+      <div class="result-char" id="result-char"><!-- キャラクター --></div>
       <h2 class="result-name" id="result-name"></h2>
-      <p class="result-desc" id="result-desc"></p>
+      <p class="result-animal" id="result-animal"></p>
+      <p class="result-copy" id="result-copy"></p>
+
+      <section class="panel">
+        <h3 class="panel-title">特徴</h3>
+        <p class="panel-body" id="result-features"></p>
+      </section>
+
+      <section class="panel panel-caution">
+        <h3 class="panel-title">気をつけたいこと</h3>
+        <p class="panel-body" id="result-caution"></p>
+      </section>
 
       <div class="axes" id="result-axes"><!-- 4軸バー --></div>
+
+      <section class="panel">
+        <h3 class="panel-title">一緒に登ると面白い相手</h3>
+        <div id="result-match"><!-- 相性2件 --></div>
+      </section>
 
       <div class="result-actions">
         <a class="btn btn-share" id="btn-share" href="#" target="_blank" rel="noopener">
@@ -69,12 +140,15 @@
           結果をシェアする
         </a>
         <button class="btn btn-ghost" id="btn-retry">もう一度診断する</button>
+        <p class="hero-link"><a href="types.html">16タイプすべてを見る</a></p>
       </div>
     </div>
   </section>
 
 </div>
 
+<script src="data.js"></script>
+<script src="characters.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

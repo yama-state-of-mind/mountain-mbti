@@ -24,6 +24,7 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--font);
+  overflow-x: clip;
   background: var(--birch);
   color: var(--pine);
   line-height: 1.7;
@@ -35,7 +36,6 @@ body {
   margin: 0 auto;
   min-height: 100dvh;
   position: relative;
-  overflow-x: hidden;
 }
 
 /* ---------- 画面切り替え ---------- */
@@ -95,11 +95,25 @@ body {
   text-align: center;
   padding: 24px 0;
 }
-.hero-mountains {
-  width: min(320px, 82%);
-  display: block;
-  margin: 0 auto 18px;
+.hero-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 320 / 168;
+  margin: 0 auto 14px;
 }
+.hero-mountains {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.cast { position: absolute; inset: 0; }
+.cast-item {
+  position: absolute;
+  display: block;
+  filter: drop-shadow(0 2px 3px rgba(30, 58, 49, .12));
+}
+.cast-item svg { display: block; width: 100%; height: auto; }
 .hero-mountains .mt.back  { fill: none; stroke: var(--fjord); stroke-width: 3; stroke-linejoin: round; opacity: .55; }
 .hero-mountains .mt.front { fill: none; stroke: var(--pine);  stroke-width: 3.5; stroke-linejoin: round; }
 .hero-mountains .sun  { fill: var(--sun); }
@@ -133,28 +147,83 @@ body {
 /* =========================================================
    質問画面
    ========================================================= */
-.quiz-header { padding: 6px 4px 14px; }
+.quiz-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0 -20px;
+  padding: 6px 20px 8px;
+  background: var(--birch);
+  box-shadow: 0 6px 12px -8px rgba(30, 58, 49, .22);
+}
 
-.progress-track {
-  height: 8px;
-  border-radius: 999px;
-  background: var(--line);
-  overflow: hidden;
+/* ---------- 登山道プログレス ---------- */
+.climb-svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--pine), var(--fjord));
-  transition: width .35s ease;
+.climb-route,
+.climb-done {
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-.progress-text {
-  margin-top: 6px;
-  text-align: right;
-  font-size: 12.5px;
-  color: var(--stone);
+.climb-route { stroke: var(--line); }
+.climb-done {
+  stroke: var(--pine);
+  stroke-dashoffset: 9999;
+  transition: stroke-dashoffset .45s ease;
+}
+
+.climb-start {
+  fill: var(--paper);
+  stroke: #7FA08F;
+  stroke-width: 2.2;
+}
+.climb-marker {
+  fill: var(--pine);
+  transition: cx .45s ease, cy .45s ease;
+}
+
+/* 道標 */
+.sign .pole {
+  stroke: var(--line);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  transition: stroke .4s ease;
+}
+.sign .board {
+  fill: var(--paper);
+  stroke: var(--line);
+  stroke-width: 1.4;
+  transition: fill .4s ease, stroke .4s ease;
+}
+.sign .board-text {
+  fill: var(--stone);
+  font-family: var(--font);
+  font-size: 7.4px;
+  font-weight: 700;
+  text-anchor: middle;
+  transition: fill .4s ease;
+}
+.sign.passed .pole { stroke: var(--pine); }
+.sign.passed .board { fill: var(--pine); stroke: var(--pine); }
+.sign.passed .board-text { fill: #fff; }
+
+#sign-peak.passed .board { fill: var(--sun); stroke: var(--sun); }
+#sign-peak.passed .board-text { fill: var(--pine); }
+#sign-peak.passed .pole { stroke: var(--sun); }
+
+.climb-count {
+  fill: var(--stone);
+  font-family: var(--font);
+  font-size: 8.6px;
   font-weight: 500;
+  text-anchor: end;
 }
+.climb-count #progress-count { fill: var(--pine); font-weight: 700; font-size: 10.5px; }
 
 .quiz-viewport { flex: 1; }
 .quiz-page.page-in  { animation: screenIn .4s ease both; }
@@ -194,8 +263,21 @@ body {
   padding: 10px 12px;
   border-radius: 12px;
 }
-.opt-a { background: #EDF3EF; color: var(--pine); margin-bottom: 12px; }
-.opt-b { background: #EAF1F6; color: #2E4B60; margin-top: 12px; }
+.opt-a { background: #EDF3EF; color: var(--pine); margin-bottom: 7px; }
+.opt-b { background: #EAF1F6; color: #2E4B60; }
+
+/* --- 目盛り（A / B の対応を示す） --- */
+.scale { margin-top: 17px; }
+
+.scale-notes {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+  margin-top: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--stone);
+}
 
 /* --- 6段階ドット --- */
 .dots {
@@ -256,26 +338,18 @@ body {
   margin-bottom: 14px;
 }
 .result-code {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-.code-tile {
-  width: 60px;
-  height: 68px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  font-size: 32px;
-  font-weight: 900;
+  display: inline-block;
+  background: var(--pine);
   color: #fff;
+  font-size: 33px;
+  font-weight: 900;
+  letter-spacing: .2em;
+  line-height: 1.25;
+  padding: 11px 16px 11px 24px;
+  border-radius: 14px;
+  margin-bottom: 16px;
   box-shadow: var(--shadow-card);
 }
-.code-tile:nth-child(1) { background: var(--pine); }
-.code-tile:nth-child(2) { background: var(--fjord); }
-.code-tile:nth-child(3) { background: #5E8A6E; }
-.code-tile:nth-child(4) { background: var(--sun); }
 
 .result-name {
   font-size: 25px;
@@ -292,6 +366,7 @@ body {
 /* --- 4軸バー --- */
 .axes {
   background: var(--paper);
+  margin-top: 14px;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 20px 18px;
@@ -333,5 +408,172 @@ body {
 /* ---------- 小さい画面の微調整 ---------- */
 @media (max-width: 360px) {
   .hero-title { font-size: 29px; }
-  .code-tile { width: 52px; height: 60px; font-size: 27px; }
+  .result-code { font-size: 28px; padding: 10px 14px 10px 21px; }
 }
+
+
+/* ---------- 結果画面：キャッチコピー ---------- */
+.result-copy {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fjord);
+  margin-bottom: 26px;
+  padding: 0 8px;
+}
+
+/* ---------- 結果画面：説明パネル ---------- */
+.panel {
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 18px 18px 20px;
+  margin-bottom: 14px;
+  text-align: left;
+}
+.panel-title {
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  padding-left: 11px;
+  border-left: 4px solid var(--pine);
+  line-height: 1.4;
+}
+.panel-body {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #3d4d46;
+}
+.panel-caution .panel-title { border-left-color: var(--sun); }
+
+/* ---------- 結果画面：相性 ---------- */
+.match { padding: 13px 0; border-bottom: 1px solid var(--line); }
+.match:last-child { padding-bottom: 0; border-bottom: none; }
+.match:first-child { padding-top: 4px; }
+.match-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--stone);
+  margin-bottom: 5px;
+}
+.match-name {
+  font-size: 15.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 3px;
+}
+.match-code {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #fff;
+  background: var(--fjord);
+  border-radius: 6px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+.match-why { font-size: 12.5px; color: var(--stone); line-height: 1.7; }
+
+/* 結果画面はカード群が続くので、余白を上下に確保 */
+.result-actions { margin-top: 26px; }
+
+/* ---------- 公開前の一時設定 ----------
+   Xシェアボタンを非表示にしています。
+   内容が固まって公開する準備ができたら、下の1行を削除してください。 */
+#btn-share { display: none; }
+
+/* =========================================================
+   キャラクター
+   ========================================================= */
+.char { display: block; width: 100%; height: auto; }
+.char-lg { width: 168px; margin: 0 auto; }
+.char-sm { width: 62px; flex-shrink: 0; }
+
+.result-char { margin: 2px 0 6px; }
+.result-animal {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--stone);
+  margin-bottom: 12px;
+}
+
+/* 相性欄はキャラクターを左に並べる */
+.match { display: flex; gap: 13px; align-items: flex-start; }
+.match-body { flex: 1; }
+
+/* スタート画面・結果画面から一覧へ */
+.hero-link { margin-top: 16px; font-size: 13px; }
+.hero-link a {
+  color: var(--fjord);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1.5px solid #C3D5E0;
+  padding-bottom: 2px;
+}
+.hero-link a:hover { border-bottom-color: var(--fjord); }
+.hero-link a:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+
+/* =========================================================
+   16タイプ一覧ページ（types.html）
+   ========================================================= */
+.list-page { max-width: 900px; margin: 0 auto; padding: 0 16px 60px; }
+
+.list-head { padding: 34px 0 22px; text-align: center; }
+.list-head h1 { font-size: 27px; font-weight: 900; letter-spacing: .03em; }
+.list-head p { font-size: 14px; color: #45564e; margin-top: 8px; }
+
+.legend {
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 18px 18px 16px;
+  margin-bottom: 26px;
+  text-align: left;
+}
+.legend h2 {
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  padding-left: 11px;
+  border-left: 4px solid var(--pine);
+}
+.legend p { font-size: 13.5px; line-height: 1.85; color: #3d4d46; }
+.legend p + p { margin-top: 8px; }
+.legend b { color: var(--pine); }
+
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 14px;
+}
+.type-card {
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 14px 13px 16px;
+  text-align: center;
+}
+.type-card .char { width: 132px; margin: 0 auto 6px; }
+.tc-code {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  color: #fff;
+  background: var(--pine);
+  border-radius: 5px;
+  padding: 2px 9px;
+}
+.tc-name { font-size: 15px; font-weight: 900; margin-top: 7px; line-height: 1.45; }
+.tc-animal { font-size: 11.5px; font-weight: 700; color: var(--stone); margin-top: 2px; }
+.tc-copy { font-size: 12.5px; font-weight: 700; color: var(--fjord); margin-top: 7px; line-height: 1.6; }
+.tc-item {
+  font-size: 11.5px;
+  color: var(--stone);
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  line-height: 1.6;
+}
+.list-foot { text-align: center; margin-top: 32px; }

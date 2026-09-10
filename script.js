@@ -1,95 +1,31 @@
 /* =========================================================
-   YAMA TYPE — 登山タイプ診断
-   質問・タイプ定義はすべてこのファイル上部で編集できます。
-   （質問を増やす／64タイプ化する場合もここを拡張するだけ）
+   YAMA TYPE — アプリのロジック
+   質問やタイプの文章は data.js、キャラクターは characters.js にあります。
+   読み込み順は data.js → characters.js → script.js です。
    ========================================================= */
-
-/* ---------- 設定 ---------- */
-const QUESTIONS_PER_PAGE = 6; // 1ページに表示する質問数
-const SITE_URL = "https://example.com"; // 公開後に自分のURLへ変更
-const SHARE_HASHTAG = "#登山タイプ診断";
-
-/* ---------- 評価軸の定義 ----------
-   a: Aを選ぶと加点される文字 / b: Bを選ぶと加点される文字 */
-const AXES = [
-  { id: "PE", a: "P", b: "E", aName: "ピークハント", bName: "エンジョイ", title: "目的" },
-  { id: "SG", a: "S", b: "G", aName: "ソロ",         bName: "グループ",   title: "仲間" },
-  { id: "LF", a: "L", b: "F", aName: "計画・データ", bName: "フィーリング", title: "計画" },
-  { id: "CA", a: "C", b: "A", aName: "慎重・安全",   bName: "挑戦・冒険",  title: "リスク" },
-];
-
-/* ---------- 質問リスト（全12問） ----------
-   axis: 対応する軸ID / a: A選択肢（軸の1文字目側） / b: B選択肢 */
-const QUESTIONS = [
-  // 軸1：目的（P vs E）
-  { axis: "PE", text: "登山で最も達成感を感じる瞬間は？",
-    a: "山頂の看板前で写真を撮ったとき、標高や登頂記録を更新したとき",
-    b: "途中の絶景ポイントで美味しいご飯を食べたり、景色をゆっくり眺めているとき" },
-  { axis: "PE", text: "行く山を決める際に最も重視するのは？",
-    a: "日本百名山であることや、標高・難易度の高さ",
-    b: "山小屋のグルメ・雰囲気の良さや、下山後の温泉・観光" },
-  { axis: "PE", text: "登山中、予定より時間が押している場合に取る行動は？",
-    a: "山頂での休憩時間を削ってでも、なんとか山頂まで登り切る",
-    b: "無理せず引き返すか山頂を諦め、途中の景観やカフェタイムを楽しむ" },
-
-  // 軸2：仲間（S vs G）
-  { axis: "SG", text: "理想の登山スタイル・人数は？",
-    a: "1人（または気を使わない最小限の人数）で静かに登る",
-    b: "3〜5人以上の賑やかなグループでワイワイ登る" },
-  { axis: "SG", text: "登山中にテンションが上がる瞬間は？",
-    a: "静かな山道で、自分1人だけの空間と静寂を噛み締めるとき",
-    b: "仲間と「すごい景色！」「疲れたね！」と感情を共有しているとき" },
-  { axis: "SG", text: "登山計画を立てるとき好き・得意なのは？",
-    a: "行きたいルートを自分1人でサクッと決めて行動する",
-    b: "みんなの希望を聞いて日程調整したり、企画を立てて巻き込む" },
-
-  // 軸3：計画（L vs F）
-  { axis: "LF", text: "登山の事前準備スタイルは？",
-    a: "コースタイム、標高差、水分の必要量を事前に数値化して計算する",
-    b: "大体の行き先と天気だけ確認し、詳細は当日の気分や状況で決める" },
-  { axis: "LF", text: "ギア（道具）を選ぶ基準は？",
-    a: "重量（g単位）、機能性、スペック数値を比較して論理的に選ぶ",
-    b: "デザインやカラーリング、直感的な好みや好きなブランドで選ぶ" },
-  { axis: "LF", text: "登山中のペース管理は？",
-    a: "標準コースタイムに対する倍率（例: 0.8倍ペース）を意識して管理する",
-    b: "その時の体調や気分の赴くままに自由に歩く" },
-
-  // 軸4：リスク（C vs A）
-  { axis: "CA", text: "天気予報が「微妙（てんくらC評価など）」な場合の判断は？",
-    a: "無理せず中止にするか、確実に安全な低山・観光に変更する",
-    b: "現地に行って状況を見ながら、行けるところまでトライしてみる" },
-  { axis: "CA", text: "挑戦してみたいルートは？",
-    a: "よく整備されたメジャーコースや、エスケープルートが多い安心なルート",
-    b: "岩場・鎖場が多いスリリングなルートやバリエーションルート" },
-  { axis: "CA", text: "防寒着・雨具・非常用品の装備量は？",
-    a: "使わない可能性が高くても「万が一」に備えて多めに持つ",
-    b: "必要最低限に絞り、なるべく軽量化して行動力を上げる" },
-];
-
-/* ---------- 16タイプ定義 ----------
-   64タイプ化する場合は5文字目を追加したキーを増やせばOK */
-const TYPES = {
-  PSLC: { name: "ソロの山職人",           desc: "計画通りに淡々と登り切る完璧主義者。緻密なプランと確かな技術で、静かに頂を積み重ねていくタイプです。" },
-  PSLA: { name: "孤高のチャレンジャー",   desc: "誰も踏み込まない難関に一人で挑む求道者。データに裏打ちされた実力で、限界の一歩先を目指します。" },
-  PSFC: { name: "マイペース登頂家",       desc: "己の感覚と体力だけで頂を踏むタイプ。無理はしないけれど、登ると決めた山は自分の流儀で登り切ります。" },
-  PSFA: { name: "野性派冒険家",           desc: "直感と野性味でコースを突き進むワイルド派。地図よりも自分の勘を信じて、山と一対一で向き合います。" },
-  PGLC: { name: "絶対的リーダー",         desc: "徹底した安全計画で仲間を導く司令塔。あなたがいるだけでパーティ全体の登頂率と安心感が上がります。" },
-  PGLA: { name: "熱血アルピニスト",       desc: "信頼する仲間と共に高みを目指す情熱派。綿密な計画と攻めの姿勢で、チームの限界を押し上げます。" },
-  PGFC: { name: "頼れる相棒",             desc: "仲間を気遣いながら登頂を果たす縁の下の力持ち。あなたと登る山は、なぜかいつも安心で楽しい。" },
-  PGFA: { name: "攻めの宴会隊長",         desc: "スリルも仲間との盛り上がりも全力のエンターテイナー。山頂での乾杯のために今日も攻めの登山を仕掛けます。" },
-  ESLC: { name: "静寂のスローハイカー",   desc: "自分のペースで山の静けさを愛でる思索家。計画はきっちり、歩みはゆっくり。山との対話を大切にします。" },
-  ESLA: { name: "風のソロ旅人",           desc: "軽量ギアでどこまでも自由に歩く放浪派。緻密なギア選定と身軽さを武器に、風のように山を渡ります。" },
-  ESFC: { name: "癒やしのチルハイカー",   desc: "写真・カフェ・温泉を全力で味わう癒やし系。山は登るものではなく、味わうもの。それがあなたの流儀です。" },
-  ESFA: { name: "自由気ままな山歩き人",   desc: "気分に任せて自然に溶け込む自由人。予定も目的地もゆるやかに、その日いちばん心地よい道を歩きます。" },
-  EGLC: { name: "至高のおもてなしガイド", desc: "仲間に最高の山体験を提供する気配り屋。安全管理も休憩ポイントも完璧で、みんなの「また行きたい」を生み出します。" },
-  EGLA: { name: "絶景のプロデューサー",   desc: "最高の景色と山ご飯をプロデュースする演出家。綿密なリサーチ力と行動力で、忘れられない一日を作ります。" },
-  EGFC: { name: "和気あいあいムードメーカー", desc: "仲間がいればどんな低山も最高の思い出に変える太陽のような存在。あなたの笑顔がパーティの原動力です。" },
-  EGFA: { name: "アクティブ映えハンター", desc: "スリル満点の絶景をみんなで共有する行動派。ノリと勢い、そして抜群のフットワークで山を遊び尽くします。" },
-};
 
 /* =========================================================
    ここから下はアプリ本体のロジック
    ========================================================= */
+
+/* ---------- 出題順のシャッフル ----------
+   同じ軸の質問が隣り合わないように並べ替える */
+function shuffleQuestions(list) {
+  if (!SHUFFLE) return list.slice();
+  const spreadOut = (arr) => arr.every((q, i) => i === 0 || q.axis !== arr[i - 1].axis);
+
+  for (let attempt = 0; attempt < 200; attempt++) {
+    const a = list.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    if (spreadOut(a)) return a;
+  }
+  return list.slice(); // 条件を満たす並びが見つからなかった場合
+}
+
+let QUIZ = shuffleQuestions(QUESTIONS);
 const answers = new Array(QUESTIONS.length).fill(null); // 0〜5（0=A強, 5=B強）
 let currentPage = 0;
 const totalPages = Math.ceil(QUESTIONS.length / QUESTIONS_PER_PAGE);
@@ -107,35 +43,77 @@ function showScreen(name) {
   window.scrollTo({ top: 0 });
 }
 
+
+/* ---------- スタート画面に16体を散らす ----------
+   x, y は置き場に対する%、s は幅の%、r は回転角。
+   奥（小さい）→ 手前（大きい）の3段にして奥行きを出す */
+const CAST_LAYOUT = [
+  { code: "PSFA", x:  4, y:  2, s:  9.5, r: -7 },
+  { code: "ESFA", x: 23, y:  9, s:  9, r:  5 },
+  { code: "PSLA", x: 43, y:  0, s: 10, r: -4 },
+  { code: "EGFC", x: 63, y: 10, s:  9, r:  7 },
+  { code: "PSFC", x: 83, y:  3, s:  9.5, r: -5 },
+
+  { code: "ESLA", x:  2, y: 32, s: 11.5, r:  6 },
+  { code: "PGFA", x: 20, y: 39, s: 11.5, r: -6 },
+  { code: "EGLA", x: 41, y: 30, s: 12,   r:  4 },
+  { code: "PGLC", x: 62, y: 40, s: 11.5, r: -7 },
+  { code: "ESLC", x: 83, y: 33, s: 11.5, r:  5 },
+
+  { code: "ESFC", x:  3, y: 62, s: 14, r: -5 },
+  { code: "PGLA", x: 21, y: 69, s: 13, r:  6 },
+  { code: "EGLC", x: 38, y: 60, s: 14, r: -3 },
+  { code: "PSLC", x: 55, y: 70, s: 13, r:  5 },
+  { code: "PGFC", x: 71, y: 61, s: 14, r: -6 },
+  { code: "EGFA", x: 85, y: 68, s: 13, r:  4 },
+];
+
+function renderCast() {
+  const box = document.getElementById("cast");
+  if (!box || typeof characterSVG !== "function") return;
+  box.innerHTML = CAST_LAYOUT.map((c) =>
+    `<span class="cast-item" style="left:${c.x}%;top:${c.y}%;width:${c.s}%;
+      transform:rotate(${c.r}deg)">${characterSVG(c.code, "char", true)}</span>`
+  ).join("");
+}
+renderCast();
+
 /* ---------- 質問ページの描画 ---------- */
 function renderPage() {
   const page = $("#quiz-page");
   page.innerHTML = "";
   page.classList.remove("page-in");
-  void page.offsetWidth; // アニメーション再生のためのリフロー
+  void page.offsetWidth;
   page.classList.add("page-in");
 
   const start = currentPage * QUESTIONS_PER_PAGE;
-  const end = Math.min(start + QUESTIONS_PER_PAGE, QUESTIONS.length);
+  const end = Math.min(start + QUESTIONS_PER_PAGE, QUIZ.length);
 
   for (let i = start; i < end; i++) {
-    const q = QUESTIONS[i];
+    const q = QUIZ[i];
     const card = document.createElement("div");
     card.className = "q-card";
     card.dataset.index = i;
 
+    const strength = ["とてもAに近い", "Aに近い", "やや A", "やや B", "Bに近い", "とてもBに近い"];
     const dots = [0, 1, 2, 3, 4, 5].map((v) => {
       const sel = answers[i] === v ? " selected" : "";
       return `<button type="button" class="dot${sel}" data-v="${v}"
-        aria-label="${v <= 2 ? "A寄り" : "B寄り"}（強さ${v <= 2 ? 3 - v : v - 2}）"></button>`;
+        aria-label="${strength[v]}"></button>`;
     }).join("");
 
     card.innerHTML = `
       <span class="q-num">Q${i + 1}</span>
       <p class="q-text">${q.text}</p>
       <div class="opt-label opt-a">A. ${q.a}</div>
-      <div class="dots">${dots}</div>
       <div class="opt-label opt-b">B. ${q.b}</div>
+      <div class="scale">
+        <div class="dots">${dots}</div>
+        <div class="scale-notes">
+          <span>Aに近い</span>
+          <span>Bに近い</span>
+        </div>
+      </div>
     `;
     page.appendChild(card);
   }
@@ -145,7 +123,7 @@ function renderPage() {
   updateProgress();
 }
 
-/* ---------- ドット選択（イベント委任） ---------- */
+/* ---------- ドット選択 ---------- */
 $("#quiz-page").addEventListener("click", (e) => {
   const dot = e.target.closest(".dot");
   if (!dot) return;
@@ -157,11 +135,64 @@ $("#quiz-page").addEventListener("click", (e) => {
   dot.classList.add("selected");
   card.classList.remove("needs-answer");
   updateProgress();
+  scrollToNext(idx);
 });
+
+/* ---------- 回答したら次の質問へ送る ----------
+   まだ答えていないカードを優先し、なければページ末のボタンへ送る */
+function scrollToNext(fromIndex) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const pageStart = currentPage * QUESTIONS_PER_PAGE;
+  const pageEnd = Math.min(pageStart + QUESTIONS_PER_PAGE, QUIZ.length);
+
+  let target = null;
+  for (let i = fromIndex + 1; i < pageEnd; i++) {
+    if (answers[i] === null) { target = i; break; }
+  }
+  if (target === null && fromIndex + 1 < pageEnd) target = fromIndex + 1;
+
+  setTimeout(() => {
+    if (target !== null) {
+      const next = document.querySelector(`.q-card[data-index="${target}"]`);
+      if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      // ページ最後の質問に答えたら「つぎへ」ボタンを見せる
+      $("#btn-next").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 260);
+}
+
+/* ---------- 登山道プログレス ----------
+   左端が登山口、右端が山頂。歩いた分だけ道に色がつき、現在地の丸が進む */
+let routeLength = 0;
 
 function updateProgress() {
   const done = answers.filter((a) => a !== null).length;
-  $("#progress-fill").style.width = `${(done / QUESTIONS.length) * 100}%`;
+  const ratio = QUIZ.length ? done / QUIZ.length : 0;
+  const route = document.getElementById("climb-path");
+  const walked = document.getElementById("climb-progress");
+  const marker = document.getElementById("climb-marker");
+
+  if (route && walked) {
+    if (!routeLength) {
+      try {
+        routeLength = route.getTotalLength();
+        walked.style.strokeDasharray = routeLength;
+      } catch (e) { routeLength = 0; }
+    }
+    if (routeLength) {
+      walked.style.strokeDashoffset = routeLength * (1 - ratio);
+      try {
+        const p = route.getPointAtLength(routeLength * ratio);
+        marker.setAttribute("cx", p.x);
+        marker.setAttribute("cy", p.y);
+      } catch (e) {}
+    }
+  }
+
+  document.getElementById("sign-mid").classList.toggle("passed", ratio >= 0.5);
+  document.getElementById("sign-peak").classList.toggle("passed", done === QUIZ.length);
   $("#progress-count").textContent = done;
   $("#progress-bar-wrap").setAttribute("aria-valuenow", done);
 }
@@ -183,9 +214,8 @@ $("#btn-back").addEventListener("click", () => {
 });
 
 $("#btn-next").addEventListener("click", () => {
-  // このページの未回答チェック
   const start = currentPage * QUESTIONS_PER_PAGE;
-  const end = Math.min(start + QUESTIONS_PER_PAGE, QUESTIONS.length);
+  const end = Math.min(start + QUESTIONS_PER_PAGE, QUIZ.length);
   for (let i = start; i < end; i++) {
     if (answers[i] === null) {
       const card = document.querySelector(`.q-card[data-index="${i}"]`);
@@ -203,16 +233,38 @@ $("#btn-next").addEventListener("click", () => {
   }
 });
 
+
+/* ---------- 相性のいいタイプ ----------
+   息が合う相手  : 計画軸だけが逆のタイプ（感覚派と計画派で補完し合う）
+   刺激をくれる相手: 目的軸だけが逆のタイプ（同じ登り方で、山の楽しみ方が違う） */
+function flipAxis(code, axisIndex) {
+  const ax = AXES[axisIndex];
+  const chars = code.split("");
+  chars[axisIndex] = chars[axisIndex] === ax.a ? ax.b : ax.a;
+  return chars.join("");
+}
+
+function findMatches(code) {
+  return [
+    { label: "息が合う相手",     code: flipAxis(code, 2), why: "計画の立て方が逆どうし。抜けを補い合えます" },
+    { label: "刺激をくれる相手", code: flipAxis(code, 0), why: "登り方は近いのに、山に求めるものが違います" },
+  ];
+}
+
 /* ---------- 判定ロジック ----------
-   0,1,2 → A側（重み3,2,1） / 3,4,5 → B側（重み1,2,3） */
+   選択肢A側（0,1,2）は重み3,2,1／選択肢B側（3,4,5）は重み1,2,3。
+   rev が true の質問は、選択肢Aが2文字目側を指すため向きを反転させる。 */
 function calcResult() {
-  const score = {}; // 例: { PE: { a: 5, b: 2 }, ... }
+  const score = {};
   AXES.forEach((ax) => (score[ax.id] = { a: 0, b: 0 }));
 
-  QUESTIONS.forEach((q, i) => {
+  QUIZ.forEach((q, i) => {
     const v = answers[i];
-    if (v <= 2) score[q.axis].a += 3 - v;
-    else score[q.axis].b += v - 2;
+    const weight = v <= 2 ? 3 - v : v - 2;
+    const pickedOptionA = v <= 2;
+    const scoresFirstLetter = q.rev ? !pickedOptionA : pickedOptionA;
+    if (scoresFirstLetter) score[q.axis].a += weight;
+    else score[q.axis].b += weight;
   });
 
   let code = "";
@@ -221,7 +273,7 @@ function calcResult() {
     const s = score[ax.id];
     const total = s.a + s.b;
     const aPct = Math.round((s.a / total) * 100);
-    const aWins = s.a >= s.b; // 同点はA側（1文字目）に倒す
+    const aWins = s.a >= s.b; // 同点は1文字目側に倒す
     code += aWins ? ax.a : ax.b;
     detail.push({ ...ax, aPct, bPct: 100 - aPct, aWins });
   });
@@ -233,12 +285,30 @@ function showResult() {
   const { code, detail } = calcResult();
   const type = TYPES[code] || { name: "未知のタイプ", desc: "" };
 
-  $("#result-code").innerHTML = code
-    .split("")
-    .map((c) => `<div class="code-tile">${c}</div>`)
-    .join("");
+  $("#result-code").textContent = code;
+  const ch = CHARACTERS[code];
+  $("#result-char").innerHTML = characterSVG(code, "char char-lg");
   $("#result-name").textContent = type.name;
-  $("#result-desc").textContent = type.desc;
+  $("#result-animal").textContent = ch ? `（${ch.animal}）` : "";
+  $("#result-copy").textContent = "「" + type.copy + "」";
+  $("#result-features").textContent = type.features;
+  $("#result-caution").textContent = type.caution;
+
+  $("#result-match").innerHTML = findMatches(code)
+    .map((m) => {
+      const t = TYPES[m.code] || { name: "—" };
+      const mc = CHARACTERS[m.code];
+      return `
+      <div class="match">
+        ${characterSVG(m.code, "char char-sm")}
+        <div class="match-body">
+          <p class="match-label">${m.label}</p>
+          <p class="match-name"><span class="match-code">${m.code}</span>${t.name}</p>
+          <p class="match-why">${mc ? mc.animal + "。" : ""}${m.why}</p>
+        </div>
+      </div>`;
+    })
+    .join("");
 
   $("#result-axes").innerHTML = detail
     .map((d) => {
@@ -259,7 +329,6 @@ function showResult() {
     })
     .join("");
 
-  // Xシェアリンク
   const text = `私の登山タイプは【${code}：${type.name}】でした！ ${SHARE_HASHTAG}`;
   $("#btn-share").href =
     "https://twitter.com/intent/tweet?text=" +
@@ -269,7 +338,6 @@ function showResult() {
 
   showScreen("result");
 
-  // バーのアニメーション（幅0→本来値）
   requestAnimationFrame(() => {
     document.querySelectorAll(".axis-bar").forEach((bar) => {
       const w = bar.style.width;
@@ -283,5 +351,6 @@ function showResult() {
 $("#btn-retry").addEventListener("click", () => {
   answers.fill(null);
   currentPage = 0;
+  QUIZ = shuffleQuestions(QUESTIONS); // 順番を引き直す
   showScreen("start");
 });

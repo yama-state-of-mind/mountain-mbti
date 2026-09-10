@@ -67,7 +67,7 @@ document.getElementById("type-list").innerHTML = Object.keys(TYPES).map((code) =
   }).join("");
 
   const matches = findMatches(code).map((m) => {
-    const mt = TYPES[m.code], mc = CHARACTERS[m.code];
+    const mt = TYPES[m.code];
     if (!mt) return "";
     return `
       <a class="match" href="#${m.code}">
@@ -75,7 +75,7 @@ document.getElementById("type-list").innerHTML = Object.keys(TYPES).map((code) =
         <span class="match-body">
           <span class="match-label">${m.label}</span>
           <span class="match-name"><span class="match-code">${m.code}</span>${mt.name}</span>
-          <span class="match-why">${mc ? mc.animal + "。" : ""}${m.why}</span>
+          <span class="match-why">${m.why}</span>
         </span>
       </a>`;
   }).join("");

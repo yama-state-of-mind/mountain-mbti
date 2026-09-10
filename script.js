@@ -278,7 +278,6 @@ function showResult() {
   $("#result-match").innerHTML = findMatches(code)
     .map((m) => {
       const t = TYPES[m.code] || { name: "—" };
-      const mc = CHARACTERS[m.code];
       return `
       <div class="match">
         <a class="match-char" href="types.html#${m.code}" aria-label="${t.name}の紹介を見る">
@@ -290,7 +289,7 @@ function showResult() {
             <span class="match-code">${m.code}</span>
             <a class="match-link" href="types.html#${m.code}">${t.name}</a>
           </p>
-          <p class="match-why">${mc ? mc.animal + "。" : ""}${m.why}</p>
+          <p class="match-why">${m.why}</p>
         </div>
       </div>`;
     })

@@ -717,7 +717,9 @@ body {
   box-shadow: var(--shadow-card);
   padding: 20px 18px 18px;
   margin-bottom: 18px;
-  scroll-margin-top: 16px;
+  /* 追従するタブの下に隠れないよう、タブの高さぶん余白を取る
+     --tab-h は types.html が実測して設定します */
+  scroll-margin-top: calc(var(--tab-h, 90px) + 14px);
 }
 .ti-head { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
 .ti-char { width: 104px; flex-shrink: 0; }

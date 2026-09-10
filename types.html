@@ -186,6 +186,16 @@ function typeCard(code) {
     </article>`;
 }
 
+/* ---------- 追従タブの高さを測って記録する ----------
+   アンカーで移動したときに、カードがタブの下に隠れないようにするため */
+function measureTabs() {
+  const tabs = document.getElementById("group-tabs");
+  if (!tabs || document.getElementById("detail").hidden) return;
+  const h = Math.round(tabs.getBoundingClientRect().height);
+  if (h) document.documentElement.style.setProperty("--tab-h", h + "px");
+}
+window.addEventListener("resize", measureTabs);
+
 /* ---------- 表示の切り替え ---------- */
 function showIntro() {
   document.getElementById("intro").hidden = false;
@@ -215,9 +225,17 @@ function showGroup(key, anchor) {
     </div>
     ${codesOf(key).map(typeCard).join("")}`;
 
+  measureTabs();
   const target = anchor && document.getElementById(anchor);
-  if (target) target.scrollIntoView({ block: "start" });
-  else window.scrollTo({ top: 0 });
+  if (target) {
+    // レイアウトが確定してから移動する
+    requestAnimationFrame(() => {
+      measureTabs();
+      target.scrollIntoView({ block: "start" });
+    });
+  } else {
+    window.scrollTo({ top: 0 });
+  }
 }
 
 /* ---------- URLから初期表示を決める ----------

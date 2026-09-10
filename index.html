@@ -38,15 +38,13 @@
   <!-- ========== スタート画面 ========== -->
   <section id="screen-start" class="screen is-active">
     <div class="hero">
-      <div class="hero-stage">
+      <div class="cast" id="cast-top"><!-- 高山の生き物8体 --></div>
       <svg class="hero-mountains" viewBox="0 0 320 140" aria-hidden="true">
         <path class="mt back" d="M0 130 L70 40 L110 90 L160 20 L215 95 L260 55 L320 130 Z"/>
         <path class="mt front" d="M0 140 L55 75 L95 115 L150 55 L210 130 L250 95 L320 140 Z"/>
         <circle class="sun" cx="262" cy="30" r="14"/>
         <path class="snow" d="M150 55 L162 72 L155 70 L148 78 L141 68 Z"/>
       </svg>
-      <div class="cast" id="cast"><!-- 16体をJSが散らす --></div>
-      </div>
       <p class="hero-eyebrow">YAMA TYPE</p>
       <h1 class="hero-title">登山タイプ診断</h1>
       <p class="hero-lead">
@@ -56,6 +54,7 @@
       <button class="btn btn-primary" id="btn-start">診断をはじめる</button>
       <p class="hero-note">所要時間 約2分・全12問</p>
       <p class="hero-link"><a href="types.html">16タイプの一覧を見る</a></p>
+      <div class="cast cast-bottom" id="cast-bottom"><!-- 森の生き物8体 --></div>
     </div>
   </section>
 

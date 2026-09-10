@@ -27,7 +27,9 @@
     <p><b>持ちもの</b>は、その人の判断のしかたを表しています。地形図・ホイッスル・カメラのような<b>道具や情報</b>を持っているのは計画・データ派、マグカップ・花・バンダナのような<b>嗜好品や身につけるもの</b>を持っているのは感覚・フィーリング派です。</p>
   </section>
 
-  <div class="type-grid" id="type-grid"><!-- JSが16枚を生成 --></div>
+  <nav class="type-nav" id="type-nav" aria-label="タイプの目次"><!-- JSが生成 --></nav>
+
+  <div class="type-list" id="type-list"><!-- JSが16タイプを生成 --></div>
 
   <p class="list-foot hero-link"><a href="index.html">診断をはじめる</a></p>
 
@@ -38,17 +40,76 @@
 <script>
 /* data.js の TYPES と characters.js の CHARACTERS を突き合わせて一覧を作る。
    タイプを増やしたときも、この2ファイルを直すだけで一覧に反映されます。 */
-document.getElementById("type-grid").innerHTML = Object.keys(TYPES).map((code) => {
+/* 相性のいいタイプ（結果画面と同じルール） */
+function flipAxis(code, axisIndex) {
+  const ax = AXES[axisIndex];
+  const chars = code.split("");
+  chars[axisIndex] = chars[axisIndex] === ax.a ? ax.b : ax.a;
+  return chars.join("");
+}
+function findMatches(code) {
+  return [
+    { label: "息が合う相手", code: flipAxis(code, 2), why: "計画の立て方が逆どうし。抜けを補い合えます" },
+    { label: "刺激をくれる相手", code: flipAxis(code, 0), why: "登り方は近いのに、山に求めるものが違います" },
+  ];
+}
+
+document.getElementById("type-nav").innerHTML = Object.keys(TYPES).map((code) =>
+  `<a href="#${code}">${characterSVG(code, "char nav-char")}<span>${code}</span></a>`
+).join("");
+
+document.getElementById("type-list").innerHTML = Object.keys(TYPES).map((code) => {
   const t = TYPES[code];
   const c = CHARACTERS[code] || { animal: "", item: "" };
+  const axisText = code.split("").map((ch, i) => {
+    const ax = AXES[i];
+    return `<span class="ax"><b>${ch}</b>${ch === ax.a ? ax.aName : ax.bName}</span>`;
+  }).join("");
+
+  const matches = findMatches(code).map((m) => {
+    const mt = TYPES[m.code], mc = CHARACTERS[m.code];
+    if (!mt) return "";
+    return `
+      <a class="match" href="#${m.code}">
+        ${characterSVG(m.code, "char char-sm")}
+        <span class="match-body">
+          <span class="match-label">${m.label}</span>
+          <span class="match-name"><span class="match-code">${m.code}</span>${mt.name}</span>
+          <span class="match-why">${mc ? mc.animal + "。" : ""}${m.why}</span>
+        </span>
+      </a>`;
+  }).join("");
+
   return `
-    <article class="type-card">
-      ${characterSVG(code)}
-      <span class="tc-code">${code}</span>
-      <h2 class="tc-name">${t.name}</h2>
-      <p class="tc-animal">（${c.animal}）</p>
-      <p class="tc-copy">「${t.copy}」</p>
-      <p class="tc-item">持ちもの：${c.item}</p>
+    <article class="type-item" id="${code}">
+      <header class="ti-head">
+        ${characterSVG(code, "char ti-char")}
+        <div class="ti-title">
+          <span class="tc-code">${code}</span>
+          <h2 class="ti-name">${t.name}</h2>
+          <p class="tc-animal">（${c.animal}）</p>
+          <p class="tc-copy">「${t.copy}」</p>
+        </div>
+      </header>
+
+      <div class="ti-axes">${axisText}</div>
+
+      <section class="ti-block">
+        <h3 class="ti-label">特徴</h3>
+        <p class="ti-text">${t.features}</p>
+      </section>
+
+      <section class="ti-block ti-caution">
+        <h3 class="ti-label">気をつけたいこと</h3>
+        <p class="ti-text">${t.caution}</p>
+      </section>
+
+      <section class="ti-block">
+        <h3 class="ti-label">一緒に登ると面白い相手</h3>
+        ${matches}
+      </section>
+
+      <p class="ti-item">持ちもの：${c.item}</p>
     </article>`;
 }).join("");
 </script>

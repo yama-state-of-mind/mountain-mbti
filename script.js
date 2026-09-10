@@ -44,37 +44,18 @@ function showScreen(name) {
 }
 
 
-/* ---------- スタート画面に16体を散らす ----------
-   x, y は置き場に対する%、s は幅の%、r は回転角。
-   奥（小さい）→ 手前（大きい）の3段にして奥行きを出す */
-const CAST_LAYOUT = [
-  { code: "PSFA", x:  4, y:  2, s:  9.5, r: -7 },
-  { code: "ESFA", x: 23, y:  9, s:  9, r:  5 },
-  { code: "PSLA", x: 43, y:  0, s: 10, r: -4 },
-  { code: "EGFC", x: 63, y: 10, s:  9, r:  7 },
-  { code: "PSFC", x: 83, y:  3, s:  9.5, r: -5 },
-
-  { code: "ESLA", x:  2, y: 32, s: 11.5, r:  6 },
-  { code: "PGFA", x: 20, y: 39, s: 11.5, r: -6 },
-  { code: "EGLA", x: 41, y: 30, s: 12,   r:  4 },
-  { code: "PGLC", x: 62, y: 40, s: 11.5, r: -7 },
-  { code: "ESLC", x: 83, y: 33, s: 11.5, r:  5 },
-
-  { code: "ESFC", x:  3, y: 62, s: 14, r: -5 },
-  { code: "PGLA", x: 21, y: 69, s: 13, r:  6 },
-  { code: "EGLC", x: 38, y: 60, s: 14, r: -3 },
-  { code: "PSLC", x: 55, y: 70, s: 13, r:  5 },
-  { code: "PGFC", x: 71, y: 61, s: 14, r: -6 },
-  { code: "EGFA", x: 85, y: 68, s: 13, r:  4 },
-];
-
+/* ---------- スタート画面のキャラクター配置 ----------
+   上段は高山の生き物（P）、下段は森の生き物（E）。
+   4列×2段で並べるので、目的軸が上下で分かれて見えます */
 function renderCast() {
-  const box = document.getElementById("cast");
-  if (!box || typeof characterSVG !== "function") return;
-  box.innerHTML = CAST_LAYOUT.map((c) =>
-    `<span class="cast-item" style="left:${c.x}%;top:${c.y}%;width:${c.s}%;
-      transform:rotate(${c.r}deg)">${characterSVG(c.code, "char", true)}</span>`
-  ).join("");
+  if (typeof characterSVG !== "function") return;
+  const codes = Object.keys(TYPES);
+  const fill = (id, list) => {
+    const box = document.getElementById(id);
+    if (box) box.innerHTML = list.map((c) => characterSVG(c, "char")).join("");
+  };
+  fill("cast-top", codes.filter((c) => c.charAt(0) === "P"));
+  fill("cast-bottom", codes.filter((c) => c.charAt(0) === "E"));
 }
 renderCast();
 
@@ -300,10 +281,15 @@ function showResult() {
       const mc = CHARACTERS[m.code];
       return `
       <div class="match">
-        ${characterSVG(m.code, "char char-sm")}
+        <a class="match-char" href="types.html#${m.code}" aria-label="${t.name}の紹介を見る">
+          ${characterSVG(m.code, "char char-sm")}
+        </a>
         <div class="match-body">
           <p class="match-label">${m.label}</p>
-          <p class="match-name"><span class="match-code">${m.code}</span>${t.name}</p>
+          <p class="match-name">
+            <span class="match-code">${m.code}</span>
+            <a class="match-link" href="types.html#${m.code}">${t.name}</a>
+          </p>
           <p class="match-why">${mc ? mc.animal + "。" : ""}${m.why}</p>
         </div>
       </div>`;

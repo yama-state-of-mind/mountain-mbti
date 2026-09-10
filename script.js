@@ -280,8 +280,8 @@ function showResult() {
   plate.style.background = g.deep;
   const ch = CHARACTERS[code];
   $("#result-char").innerHTML = characterSVG(code, "char char-lg");
+  $("#result-animal").textContent = ch ? ch.animal : type.name;
   $("#result-name").textContent = type.name;
-  $("#result-animal").textContent = ch ? `（${ch.animal}）` : "";
   $("#result-copy").textContent = "「" + type.copy + "」";
   $("#result-features").textContent = type.features;
   $("#result-caution").textContent = type.caution;
@@ -289,6 +289,7 @@ function showResult() {
   $("#result-match").innerHTML = findMatches(code)
     .map((m) => {
       const t = TYPES[m.code] || { name: "—" };
+      const mc = CHARACTERS[m.code];
       return `
       <div class="match">
         <a class="match-char" href="types.html#${m.code}" aria-label="${t.name}の紹介を見る">
@@ -298,8 +299,9 @@ function showResult() {
           <p class="match-label">${m.label}</p>
           <p class="match-name">
             <span class="match-code" style="background:${groupOf(m.code).deep}">${m.code}</span>
-            <a class="match-link" href="types.html#${m.code}">${t.name}</a>
+            <a class="match-link" href="types.html#${m.code}">${mc ? mc.animal : t.name}</a>
           </p>
+          <p class="match-type">${t.name}</p>
           <p class="match-why">${m.why}</p>
         </div>
       </div>`;

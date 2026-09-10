@@ -21,27 +21,73 @@
     <p>それぞれのタイプに、山の生き物のキャラクターがいます。</p>
   </header>
 
-  <section class="legend">
-    <h2>4つのアルファベットの意味</h2>
-    <p>診断結果は <b>PSLC</b> のような4文字で表されます。1文字ずつが、山との付き合い方を分ける軸になっています。</p>
-    <div class="axis-table" id="axis-table"><!-- JSが4軸を生成 --></div>
-  </section>
+  <!-- ========== 入口：仕組みの解説 ========== -->
+  <div id="intro">
+    <section class="legend">
+      <h2>4つのアルファベットの意味</h2>
+      <p>診断結果は <b>PSLC</b> のような4文字で表されます。1文字ずつが、山との付き合い方を分ける軸になっています。</p>
+      <div class="axis-table" id="axis-table"></div>
+    </section>
 
-  <section class="legend">
-    <h2>16タイプは4つのグループに分かれます</h2>
-    <p>最初の2文字、つまり<b>目的</b>と<b>仲間</b>の組み合わせで、16タイプは大きく4つに分かれます。このページもこの順に並んでいます。</p>
-    <div class="group-table" id="group-table"><!-- JSが4グループを生成 --></div>
-  </section>
+    <section class="legend">
+      <h2>キャラクターの読み方</h2>
+      <p>絵の3か所を見ると、4文字のうち3つが分かります。濃い文字が、この子に当てはまるほうです。</p>
+      <div class="guide">
+        <svg viewBox="0 0 340 178" role="img" aria-label="キャラクターの読み方の図">
+          <g id="ch" transform="translate(4 32) scale(0.66)"></g>
 
-  <section class="legend">
-    <h2>キャラクターの読み方</h2>
-    <p><b>生き物</b>は、最初の2文字を表しています。カモシカやライチョウのような<b>高山の生き物</b>はピークハント派、タヌキやリスのような<b>森の生き物</b>はエンジョイ派。イヌワシやキツネのような<b>単独で暮らす生き物</b>はソロ派、ニホンザルやシカのような<b>群れで暮らす生き物</b>はグループ派です。</p>
-    <p><b>持ちもの</b>は、後ろの2文字を表しています。地形図・ホイッスル・カメラのような<b>道具や情報</b>を持っているのは計画・データ派、マグカップ・花・バンダナのような<b>嗜好品や身につけるもの</b>を持っているのは感覚・フィーリング派です。</p>
-  </section>
+          <path class="g-line" d="M100 64 L124 46 L130 46"/>
+          <circle class="g-dot" cx="100" cy="64" r="3"/>
+          <text class="g-lbl" x="132" y="46">すみか</text>
+          <text class="g-opt" x="132" y="64">高山</text>
+          <rect x="156.2" y="54" width="17" height="13" rx="3.5" fill="#1E3A31"/>
+          <text class="g-chip-t" x="164.7" y="63.7" fill="#fff">P</text>
+          <text class="g-slash" x="179.2" y="64">／</text>
+          <text class="g-opt" x="195.2" y="64">森</text>
+          <rect x="209.8" y="54" width="17" height="13" rx="3.5" fill="#EDF1EE"/>
+          <text class="g-chip-t" x="218.3" y="63.7" fill="#7C8A83">E</text>
 
-  <nav class="type-nav" id="type-nav" aria-label="タイプの目次"><!-- JSが生成 --></nav>
+          <path class="g-line" d="M104 88 L124 96 L130 96"/>
+          <circle class="g-dot" cx="104" cy="88" r="3"/>
+          <text class="g-lbl" x="132" y="96">暮らし方</text>
+          <text class="g-opt" x="132" y="114">単独</text>
+          <rect x="156.2" y="104" width="17" height="13" rx="3.5" fill="#1E3A31"/>
+          <text class="g-chip-t" x="164.7" y="113.7" fill="#fff">S</text>
+          <text class="g-slash" x="179.2" y="114">／</text>
+          <text class="g-opt" x="195.2" y="114">群れ</text>
+          <rect x="219.4" y="104" width="17" height="13" rx="3.5" fill="#EDF1EE"/>
+          <text class="g-chip-t" x="227.9" y="113.7" fill="#7C8A83">G</text>
 
-  <div class="type-list" id="type-list"><!-- JSが16タイプを生成 --></div>
+          <path class="g-line" d="M96 120 L122 146 L130 146"/>
+          <circle class="g-dot" cx="96" cy="120" r="3"/>
+          <text class="g-lbl" x="132" y="146">持ちもの</text>
+          <text class="g-opt" x="132" y="164">道具</text>
+          <rect x="156.2" y="154" width="17" height="13" rx="3.5" fill="#1E3A31"/>
+          <text class="g-chip-t" x="164.7" y="163.7" fill="#fff">L</text>
+          <text class="g-slash" x="179.2" y="164">／</text>
+          <text class="g-opt" x="195.2" y="164">嗜好品</text>
+          <rect x="229" y="154" width="17" height="13" rx="3.5" fill="#EDF1EE"/>
+          <text class="g-chip-t" x="237.5" y="163.7" fill="#7C8A83">F</text>
+        </svg>
+        <p class="g-cap">PSLA　イヌワシ（孤高の民）</p>
+      </div>
+      <p class="g-note">4文字目の<b>リスク</b>は絵に表れません。各タイプの<b>特徴</b>と<b>気をつけたいこと</b>を読んでみてください。</p>
+    </section>
+
+    <section class="legend legend-plain">
+      <h2>16タイプは4つのグループに分かれます</h2>
+      <p>最初の2文字、つまり<b>目的</b>と<b>仲間</b>の組み合わせで、16タイプは大きく4つに分かれます。見たいグループを選んでください。</p>
+    </section>
+
+    <div class="group-cards" id="group-cards"></div>
+  </div>
+
+  <!-- ========== グループ別の詳細 ========== -->
+  <div id="detail" hidden>
+    <nav class="group-tabs" id="group-tabs" aria-label="グループの切り替え"></nav>
+    <div id="group-body"></div>
+    <p class="list-foot hero-link"><a href="#" id="back-intro">4つのグループの説明に戻る</a></p>
+  </div>
 
   <p class="list-foot hero-link"><a href="index.html">診断をはじめる</a></p>
 
@@ -50,23 +96,21 @@
 <script src="data.js"></script>
 <script src="characters.js"></script>
 <script>
-/* data.js の TYPES と characters.js の CHARACTERS を突き合わせて一覧を作る。
-   タイプを増やしたときも、この2ファイルを直すだけで一覧に反映されます。 */
-/* 相性のいいタイプ（結果画面と同じルール） */
-function flipAxis(code, axisIndex) {
-  const ax = AXES[axisIndex];
-  const chars = code.split("");
-  chars[axisIndex] = chars[axisIndex] === ax.a ? ax.b : ax.a;
-  return chars.join("");
-}
-function findMatches(code) {
-  return [
-    { label: "息が合う相手", code: flipAxis(code, 2), why: "計画の立て方が逆どうし。抜けを補い合えます" },
-    { label: "刺激をくれる相手", code: flipAxis(code, 0), why: "登り方は近いのに、山に求めるものが違います" },
-  ];
+/* =========================================================
+   16タイプ一覧
+   入口では仕組みの解説だけを見せ、グループを選ぶと詳細に切り替わる。
+   URLは ?g=PS でグループ指定、#PSLC でタイプ指定に対応。
+   ========================================================= */
+const ORDER = ["PS", "PG", "ES", "EG"];
+const codesOf = (key) => Object.keys(TYPES).filter((c) => c.slice(0, 2) === key);
+
+/* ---------- 読み方の図にイヌワシを差し込む ---------- */
+const guideBox = document.getElementById("ch");
+if (guideBox) {
+  guideBox.innerHTML = characterSVG("PSLA").replace(/<svg[^>]*>|<\/svg>/g, "");
 }
 
-/* 4軸の解説 */
+/* ---------- 4軸の解説 ---------- */
 const AXIS_MEMO = {
   PE: "山頂に立つことに価値を置くか、そこに至る過程を味わうか",
   SG: "ひとりで山と向き合う時間か、誰かと分け合う時間か",
@@ -83,50 +127,73 @@ document.getElementById("axis-table").innerHTML = AXES.map((ax, i) => `
     </div>
   </div>`).join("");
 
-/* 4グループの解説 */
-const ORDER = ["PS", "PG", "ES", "EG"];
-document.getElementById("group-table").innerHTML = ORDER.map((key) => {
+/* ---------- 入口の4グループカード ---------- */
+document.getElementById("group-cards").innerHTML = ORDER.map((key) => {
   const g = GROUPS[key];
-  return `<a class="gr-row" href="#g-${key}" style="background:${g.band}">
-    <span class="gr-mark" style="background:${g.deep}"></span>
-    <span class="gr-body">
-      <span class="gr-name">${g.name}</span>
-      <span class="gr-lead">${g.lead}</span>
-      <span class="gr-axis">${g.axis}　${key}＊＊</span>
-    </span>
-  </a>`;
+  return `
+    <a class="gcard" href="?g=${key}" data-g="${key}" style="background:${g.band}">
+      <span class="gcard-bg" style="color:${g.deep}">${g.name}</span>
+      <span class="gcard-head">
+        <span class="gcard-name" style="color:${g.deep}">${g.name}</span>
+        <span class="gcard-lead">${g.lead}</span>
+      </span>
+      <span class="gcard-chars">
+        ${codesOf(key).map((c) => characterSVG(c, "char", true)).join("")}
+      </span>
+      <span class="gcard-foot">
+        <span class="gcard-axis">${g.axis}</span>
+        <span class="gcard-code">${key}＊＊</span>
+      </span>
+    </a>`;
 }).join("");
 
-document.getElementById("type-nav").innerHTML = ORDER.map((key) => {
+/* ---------- グループ切り替えタブ ---------- */
+document.getElementById("group-tabs").innerHTML = ORDER.map((key) => {
   const g = GROUPS[key];
-  const list = Object.keys(TYPES).filter((c) => c.slice(0, 2) === key);
-  return `<div class="nav-set">
-    <p class="nav-label" style="color:${g.deep}">${g.name}</p>
-    <div class="nav-row">${list.map((code) =>
-      `<a href="#${code}" style="background:${g.band}">
-        ${characterSVG(code, "char nav-char")}<span style="color:${g.deep}">${code}</span></a>`
-    ).join("")}</div>
-  </div>`;
+  return `<button class="gtab" data-g="${key}">
+    ${characterSVG(codesOf(key)[0], "char gtab-char", true)}
+    <span class="gtab-name">${g.name}</span>
+  </button>`;
 }).join("");
 
+/* ---------- 相性のいいタイプ（結果画面と同じルール） ---------- */
+function flipAxis(code, axisIndex) {
+  const ax = AXES[axisIndex];
+  const chars = code.split("");
+  chars[axisIndex] = chars[axisIndex] === ax.a ? ax.b : ax.a;
+  return chars.join("");
+}
+function findMatches(code) {
+  return [
+    { label: "息が合う相手", code: flipAxis(code, 2), why: "計画の立て方が逆どうし。抜けを補い合えます" },
+    { label: "刺激をくれる相手", code: flipAxis(code, 0), why: "登り方は近いのに、山に求めるものが違います" },
+  ];
+}
+
+/* ---------- タイプ1件のカード ---------- */
 function typeCard(code) {
   const t = TYPES[code];
   const c = CHARACTERS[code] || { animal: "", item: "" };
   const g = groupOf(code);
+
   const axisText = code.split("").map((ch, i) => {
     const ax = AXES[i];
     return `<span class="ax"><b>${ch}</b>${ch === ax.a ? ax.aName : ax.bName}</span>`;
   }).join("");
 
   const matches = findMatches(code).map((m) => {
-    const mt = TYPES[m.code];
+    const mt = TYPES[m.code], mc = CHARACTERS[m.code];
     if (!mt) return "";
     return `
       <a class="match" href="#${m.code}" style="background:${groupOf(m.code).band}">
         ${characterSVG(m.code, "char char-sm")}
         <span class="match-body">
           <span class="match-label">${m.label}</span>
-          <span class="match-name"><span class="match-code" style="background:${groupOf(m.code).deep}">${m.code}</span>${mt.name}</span>
+          <span class="match-name">
+            <span class="match-code" style="background:${groupOf(m.code).deep}">${m.code}</span>
+            ${mc ? mc.animal : mt.name}
+          </span>
+          <span class="match-type">${mt.name}</span>
           <span class="match-why">${m.why}</span>
         </span>
       </a>`;
@@ -138,8 +205,8 @@ function typeCard(code) {
         ${characterSVG(code, "char ti-char")}
         <div class="ti-title">
           <span class="tc-code" style="background:${g.deep}">${code}</span>
-          <h2 class="ti-name">${t.name}</h2>
-          <p class="tc-animal">（${c.animal}）</p>
+          <h3 class="ti-name">${c.animal}</h3>
+          <p class="tc-type">${t.name}</p>
           <p class="tc-copy">「${t.copy}」</p>
         </div>
       </header>
@@ -147,17 +214,17 @@ function typeCard(code) {
       <div class="ti-axes">${axisText}</div>
 
       <section class="ti-block">
-        <h3 class="ti-label">特徴</h3>
+        <h4 class="ti-label">特徴</h4>
         <p class="ti-text">${t.features}</p>
       </section>
 
       <section class="ti-block ti-caution">
-        <h3 class="ti-label">気をつけたいこと</h3>
+        <h4 class="ti-label">気をつけたいこと</h4>
         <p class="ti-text">${t.caution}</p>
       </section>
 
       <section class="ti-block">
-        <h3 class="ti-label">一緒に登ると面白い相手</h3>
+        <h4 class="ti-label">一緒に登ると面白い相手</h4>
         ${matches}
       </section>
 
@@ -165,16 +232,88 @@ function typeCard(code) {
     </article>`;
 }
 
-document.getElementById("type-list").innerHTML = ORDER.map((key) => {
+/* ---------- 表示の切り替え ---------- */
+function showIntro() {
+  document.getElementById("intro").hidden = false;
+  document.getElementById("detail").hidden = true;
+}
+
+function showGroup(key, anchor) {
   const g = GROUPS[key];
-  const list = Object.keys(TYPES).filter((c) => c.slice(0, 2) === key);
-  return `
-    <h2 class="group-head" id="g-${key}" style="border-color:${g.deep}">
-      <span class="gh-name" style="color:${g.deep}">${g.name}</span>
-      <span class="gh-axis">${g.axis}</span>
-    </h2>
-    ${list.map(typeCard).join("")}`;
-}).join("");
+  if (!g) return showIntro();
+
+  document.getElementById("intro").hidden = true;
+  document.getElementById("detail").hidden = false;
+
+  document.querySelectorAll(".gtab").forEach((b) => {
+    const on = b.dataset.g === key;
+    b.classList.toggle("on", on);
+    b.style.background = on ? GROUPS[b.dataset.g].band : "";
+    b.style.color = on ? GROUPS[b.dataset.g].deep : "";
+  });
+
+  document.getElementById("group-body").innerHTML = `
+    <div class="group-hero" style="background:${g.band}">
+      <span class="gh-bg" style="color:${g.deep}">${g.name}</span>
+      <p class="gh-name" style="color:${g.deep}">${g.name}</p>
+      <p class="gh-lead">${g.lead}</p>
+      <p class="gh-axis">${g.axis}　${key}＊＊</p>
+    </div>
+    ${codesOf(key).map(typeCard).join("")}`;
+
+  const target = anchor && document.getElementById(anchor);
+  if (target) target.scrollIntoView({ block: "start" });
+  else window.scrollTo({ top: 0 });
+}
+
+/* ---------- URLから初期表示を決める ----------
+   ?g=PS があればそのグループ。なければ #PSLC のアンカーから逆引きする */
+function routeFromURL() {
+  const q = new URLSearchParams(location.search).get("g");
+  const hash = (location.hash || "").slice(1);
+
+  if (q && GROUPS[q]) return showGroup(q, TYPES[hash] ? hash : null);
+  if (hash && TYPES[hash]) return showGroup(hash.slice(0, 2), hash);
+  if (hash && GROUPS[hash]) return showGroup(hash, null);
+  showIntro();
+}
+
+/* ---------- 操作 ---------- */
+document.getElementById("group-cards").addEventListener("click", (e) => {
+  const card = e.target.closest(".gcard");
+  if (!card) return;
+  e.preventDefault();
+  history.pushState(null, "", `?g=${card.dataset.g}`);
+  showGroup(card.dataset.g);
+});
+
+document.getElementById("group-tabs").addEventListener("click", (e) => {
+  const tab = e.target.closest(".gtab");
+  if (!tab) return;
+  history.pushState(null, "", `?g=${tab.dataset.g}`);
+  showGroup(tab.dataset.g);
+});
+
+document.getElementById("back-intro").addEventListener("click", (e) => {
+  e.preventDefault();
+  history.pushState(null, "", location.pathname);
+  showIntro();
+  window.scrollTo({ top: 0 });
+});
+
+/* 詳細内の相性リンクは、別グループなら切り替えてから移動する */
+document.getElementById("group-body").addEventListener("click", (e) => {
+  const link = e.target.closest(".match");
+  if (!link) return;
+  const code = link.getAttribute("href").slice(1);
+  if (!TYPES[code]) return;
+  e.preventDefault();
+  history.pushState(null, "", `?g=${code.slice(0, 2)}#${code}`);
+  showGroup(code.slice(0, 2), code);
+});
+
+window.addEventListener("popstate", routeFromURL);
+routeFromURL();
 </script>
 </body>
 </html>

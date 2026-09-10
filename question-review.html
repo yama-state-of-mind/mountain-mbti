@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>質問の見直し｜YAMA TYPE</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --birch:#F3F6F4;--paper:#fff;--pine:#1E3A31;--fjord:#46708F;
+  --sun:#E0A33B;--stone:#7C8A83;--line:#DCE4DF;--alert:#C06A4A;
+  --font:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--birch);color:var(--pine);line-height:1.75;padding-bottom:104px}
+
+.top{background:var(--pine);color:#fff;padding:20px}
+.top-inner{max-width:820px;margin:0 auto}
+.top h1{font-size:20px;font-weight:900}
+.top p{font-size:13px;opacity:.82;margin-top:4px}
+
+.wrap{max-width:820px;margin:0 auto;padding:18px 14px 0}
+.tip{background:#FDF6E8;border-left:4px solid var(--sun);border-radius:0 10px 10px 0;
+  padding:12px 15px;font-size:13px;margin-bottom:22px;color:#5c4a2a}
+
+.axis-head{display:flex;align-items:baseline;gap:10px;margin:26px 0 12px;padding-left:2px;flex-wrap:wrap}
+.axis-head h2{font-size:16px;font-weight:900}
+.axis-head span{font-size:12.5px;color:var(--stone)}
+
+.qblock{background:rgba(255,255,255,.55);border-radius:18px;padding:14px 12px 12px;margin-bottom:16px}
+.qhead{display:flex;align-items:center;gap:8px;margin:0 4px 4px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:700;color:var(--fjord);background:#EAF1F6;border-radius:999px;padding:2px 11px}
+.badge{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px}
+.badge.keep{color:#2E5A46;background:#E3F0E8}
+.badge.fix{color:var(--alert);background:#F8EDE8}
+.qmemo{font-size:12.5px;color:var(--stone);margin:0 6px 10px}
+
+.cand{background:var(--paper);border:2px solid var(--line);border-radius:14px;
+  padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.cand:hover{border-color:#B9CCC1}
+.cand.on{border-color:var(--pine);box-shadow:0 2px 12px rgba(30,58,49,.13)}
+.cand:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.cand-top{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+.tick{width:19px;height:19px;border-radius:50%;border:2px solid var(--stone);flex-shrink:0;
+  display:grid;place-items:center}
+.cand.on .tick{border-color:var(--pine);background:var(--pine)}
+.cand.on .tick::after{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
+.tag{font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;color:var(--stone);background:#EEF2EF}
+.tag.bad{color:var(--alert);background:#F8EDE8}
+.tag.new{color:#2E5A46;background:#E3F0E8}
+.tag.rec{color:#8a5a10;background:#FBEFD8}
+.ctext{font-size:14.5px;font-weight:700;margin-bottom:9px}
+.opt{font-size:13px;line-height:1.6;padding:7px 10px;border-radius:9px;margin-top:5px}
+.opt.a{background:#EDF3EF}
+.opt.b{background:#EAF1F6;color:#2E4B60}
+.note{font-size:12px;color:var(--stone);margin-top:8px;padding-left:2px;line-height:1.65}
+
+.tweak{margin-top:9px;padding-left:4px}
+.tweak button{font-family:inherit;font-size:12px;font-weight:700;background:none;border:none;
+  color:var(--fjord);cursor:pointer;text-decoration:underline;padding:2px 0}
+.editor{display:none;margin-top:8px}
+.editor.open{display:block}
+.editor label{display:block;font-size:11.5px;font-weight:700;color:var(--stone);margin:7px 0 3px}
+.editor textarea{width:100%;font-family:inherit;font-size:13.5px;line-height:1.6;color:var(--pine);
+  border:1.5px solid var(--line);border-radius:9px;padding:8px 10px;resize:vertical;background:#fcfdfc}
+.editor textarea:focus{outline:none;border-color:var(--fjord)}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);
+  border-top:1px solid var(--line);padding:12px 16px;backdrop-filter:blur(8px)}
+.bar-inner{max-width:820px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.status{font-size:12.5px;color:var(--stone);flex:1}
+.btn{font-family:inherit;font-size:14.5px;font-weight:700;border:none;border-radius:999px;padding:11px 22px;cursor:pointer}
+.btn-main{background:var(--pine);color:#fff}
+.btn-sub{background:transparent;color:var(--stone);border:1.5px solid var(--line)}
+.btn:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+.modal{position:fixed;inset:0;background:rgba(30,58,49,.5);display:none;align-items:center;
+  justify-content:center;padding:18px;z-index:10}
+.modal.open{display:flex}
+.sheet{background:#fff;border-radius:18px;width:100%;max-width:760px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.sheet h3{font-size:16px;font-weight:900;padding:18px 20px 6px}
+.sheet .hint{font-size:12.5px;color:var(--stone);padding:0 20px 12px}
+.sheet pre{flex:1;overflow:auto;margin:0 20px;padding:14px;background:#1E3A31;color:#DCE9E1;
+  border-radius:12px;font-size:11.5px;line-height:1.65;white-space:pre;font-family:ui-monospace,Menlo,monospace}
+.sheet-foot{display:flex;gap:10px;padding:14px 20px 18px;justify-content:flex-end}
+@media(max-width:520px){.bar-inner{flex-wrap:wrap}.status{flex-basis:100%}}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-inner">
+  <h1>質問の見直し</h1>
+  <p>全12問。差し替え候補があるものは選び直せます</p>
+</div></div>
+
+<div class="wrap" id="wrap"></div>
+
+<div class="bar"><div class="bar-inner">
+  <span class="status" id="status">読み込み中…</span>
+  <button class="btn btn-sub" id="rec">推奨案をまとめて選ぶ</button>
+  <button class="btn btn-sub" id="reset">現行に戻す</button>
+  <button class="btn btn-main" id="export">コードを書き出す</button>
+</div></div>
+
+<div class="modal" id="modal"><div class="sheet">
+  <h3>data.js に貼り付けるコード</h3>
+  <p class="hint">data.js の <code>const QUESTIONS = [</code> から対応する <code>];</code> までを、まるごと置き換えてください。<code>rev</code> は回答の偏りを防ぐ反転フラグで、各軸に最低1問入るよう自動で調整しています。</p>
+  <pre id="code"></pre>
+  <div class="sheet-foot">
+    <button class="btn btn-sub" id="close">閉じる</button>
+    <button class="btn btn-main" id="copy">コピー</button>
+  </div>
+</div></div>
+
+<script>
+const AXES = [
+  { id:"PE", title:"軸1 目的", a:"P ピークハント", b:"E エンジョイ" },
+  { id:"SG", title:"軸2 仲間", a:"S ソロ",         b:"G グループ" },
+  { id:"LF", title:"軸3 計画", a:"L 計画・データ", b:"F フィーリング" },
+  { id:"CA", title:"軸4 リスク", a:"C 慎重・安全", b:"A 挑戦・冒険" },
+];
+
+/* 各問の候補。cands[0] が現在サイトで動いているもの。
+   rec:true が推奨案、bad:true は問題があるもの。
+   revA:true は「選択肢Aが2文字目側」を意味する（書き出し時の rev） */
+const Q = [
+/* ===== 軸1 目的 ===== */
+{axis:"PE", memo:"達成感や記録への向き合い方を測る", cands:[
+ {tag:"現行", text:"登山アプリの記録を見返すとき、最初に確認するのは？",
+  a:"累積標高、コースタイム、登った山の数", b:"撮った写真と、歩いたルートの景色"}]},
+
+{axis:"PE", memo:"山を選ぶ基準を測る", cands:[
+ {tag:"現行", revA:true, text:"同じ日に登れる2つの山。どちらを選ぶ？",
+  a:"ゆるやかで展望はそこそこだが、途中に湖と花畑がある",
+  b:"登り一辺倒で展望は山頂だけだが、そこからの眺めは日本有数"}]},
+
+{axis:"PE", memo:"山頂そのものにこだわるかを測る", cands:[
+ {tag:"現行", revA:true, text:"濃霧で山頂の展望はゼロだと分かった。どうする？",
+  a:"山頂にはこだわらない。見晴らしのいい場所まででも十分楽しい",
+  b:"それでも踏む。景色がなくても、登頂したという事実に意味がある"}]},
+
+/* ===== 軸2 仲間 ===== */
+{axis:"SG", memo:"歩いている最中の心地よさを測る", cands:[
+ {tag:"現行 / 言い方が辛辣", bad:true, text:"登山中、ずっと誰かと話しながら歩くのは？",
+  a:"正直けっこう疲れる。黙って歩ける相手のほうがいい",
+  b:"楽しい。話していると疲れを忘れるし、時間が早く過ぎる",
+  note:"「疲れる」が人を負担として語る形になっていて、ソロ派が冷たく見えます。"},
+ {tag:"推奨", rec:true, text:"登山中、ずっと誰かと話しながら歩くのは？",
+  a:"静かに歩く時間が好き。会話がなくても気にならない",
+  b:"楽しい。話していると疲れを忘れるし、時間が早く過ぎる",
+  note:"「人が嫌」ではなく「ひとりが好き」に言い換えました。判別力は変わりません。"}]},
+
+{axis:"SG", memo:"人が視界に入っているかを測る（温泉・グルメ・会話は他の問と重なるため使わない）", cands:[
+ {tag:"現行 / 状況依存", bad:true, revA:true, text:"山に行きたいが、今週末は誘える人がいない。",
+  a:"今回は見送る。誰かと行けるタイミングを待つ",
+  b:"ひとりで行く。むしろそのほうが気楽",
+  note:"「誘える人がいない」という前提が人によって成り立たず、答えが状況に左右されます。"},
+ {tag:"案C 写真の中身", rec:true, revA:true, text:"山で撮った写真を見返すと、多いのは？",
+  a:"一緒に登った人が写っている写真",
+  b:"稜線や花、雲海。人はほとんど写っていない",
+  note:"実際に撮ったものを思い出すだけなので前提が要らず、どちらかに必ず寄ります。温泉やグルメを持ち出さずに済むのも利点です。"},
+ {tag:"案D 思い出すもの", revA:true, text:"山のことをふと思い出すとき、浮かぶのは？",
+  a:"一緒に登った人の顔と、その日の空気",
+  b:"静かな樹林帯や、稜線に出た瞬間の景色",
+  note:"仲間軸の核心に近いのですが、やや抽象的で答えに迷う人が出そうです。"},
+ {tag:"案E 続けている理由", revA:true, text:"登山を続けている理由に近いのは？",
+  a:"人とつながれる時間があるから",
+  b:"自分だけの時間が持てるから",
+  note:"いちばん直接的で判別力は高いのですが、アンケートのような質問文になり診断の面白さが減ります。"}]},
+
+{axis:"SG", memo:"計画段階でひとりを想定するかを測る", cands:[
+ {tag:"現行 / 前提に矛盾", bad:true, text:"グループ登山で、自然と引き受けがちな役割は？",
+  a:"特に役回りは持たない。自分のことは自分でやる",
+  b:"幹事、ペース配分、写真係など、なにかしら全体を見る役",
+  note:"ソロ派を測りたいのに、グループ登山の経験を前提にしているのが矛盾です。"},
+ {tag:"案A 計画の入口", rec:true, text:"行きたい山が見つかったとき、まずすることは？",
+  a:"日程と装備を自分で組み立てはじめる",
+  b:"誰か誘えそうな人がいないか考える",
+  note:"Q4が山中、Q5が下山後なので、この問が計画段階を担うと3問が綺麗に分かれます。"},
+ {tag:"案B 山での出会い", text:"山道で他の登山者とすれ違うとき、あなたは？",
+  a:"挨拶はするが、それ以上は自分の歩きに戻る",
+  b:"つい足を止めて、道の様子や山の話をしてしまう",
+  note:"場面は面白いのですが、人見知りかどうかを測ってしまう恐れがあります。"}]},
+
+/* ===== 軸3 計画 ===== */
+{axis:"LF", memo:"事前準備の深さを測る", cands:[
+ {tag:"現行", text:"登山前日の夜、していることは？",
+  a:"地図を開いて、分岐・水場・休憩ポイントを頭に入れる",
+  b:"とりあえずザックに荷物を詰めて、あとは寝る"}]},
+
+{axis:"LF", memo:"ギア選びの判断基準を測る", cands:[
+ {tag:"現行", revA:true, text:"登山用品店に入ったときの過ごし方は？",
+  a:"見た目が好きなものを見つけたら、だいたいそれに決める",
+  b:"タグのスペックを読み比べて、気づくと1時間経っている"}]},
+
+{axis:"LF", memo:"計画が崩れたときの立て直し方を測る", cands:[
+ {tag:"現行", text:"計画と実際の行程がズレてきたとき、どうする？",
+  a:"どこで取り戻すか、どこを削るかを組み立て直す",
+  b:"ズレたらズレたで、その日の流れに任せる"}]},
+
+/* ===== 軸4 リスク ===== */
+{axis:"CA", memo:"天候リスクへの向き合い方を測る", cands:[
+ {tag:"現行", revA:true, text:"週末の降水確率が50%。金曜の夜のあなたは？",
+  a:"当日の朝まで粘る。行けそうなら出発する",
+  b:"早めに中止を決めて、別の予定を入れてしまう"}]},
+
+{axis:"CA", memo:"地形リスクの好みを測る", cands:[
+ {tag:"現行", text:"山頂までのルートが2つ。どちらを選ぶ？",
+  a:"距離は長いが、危険箇所のない一般道",
+  b:"短いが急峻で、鎖場と渡渉があるスリルのある山道"}]},
+
+{axis:"CA", memo:"装備をどこまで持つかの考え方を測る", cands:[
+ {tag:"現行 / 他人の評価が前提", bad:true, revA:true, text:"「それ、本当に要る？」と言われがちな装備がある？",
+  a:"ない。むしろ削れるものはないかいつも考えている",
+  b:"心当たりがある。念のため派なので荷物は重くなりがち",
+  note:"人から言われている前提が入っていて、気にする人がいるかもしれません。"},
+ {tag:"案A ザックの重さ", revA:true, text:"ザックを背負ったとき、しっくりくるのは？",
+  a:"驚くほど軽い。動きやすさがそのまま安全につながる",
+  b:"少し重いくらい。これだけあれば何が起きても対応できる",
+  note:"「軽いほうが安全」という主張が入っていて、少し誘導的です。"},
+ {tag:"案B 使わなかった装備", rec:true, revA:true, text:"一日歩いて、結局使わなかった装備があった。",
+  a:"次は置いていこう。持たない判断も経験のひとつだ",
+  b:"それでいい。備えは使わないのがいちばんいい",
+  note:"実感に近く、どちらも正しい考え方として書けているので優劣なく選べます。"}]},
+];
+
+const KEY="yamatype:qreview:v2";
+let picks=Q.map(()=>({sel:0,custom:null}));
+
+async function load(){
+  try{
+    const r=await window.storage.get(KEY);
+    if(r&&r.value){
+      const s=JSON.parse(r.value);
+      if(Array.isArray(s)&&s.length===Q.length){picks=s;info("前回の続きを読み込みました");return;}
+    }
+  }catch(e){}
+  info("選ぶと自動保存されます");
+}
+let tm;
+function save(){clearTimeout(tm);info("保存中…");tm=setTimeout(async()=>{
+  try{await window.storage.set(KEY,JSON.stringify(picks));info();}
+  catch(e){info("自動保存できません。書き出したコードを控えてください");}
+},400);}
+function info(msg){
+  const n=picks.filter((p,i)=>p.custom||p.sel!==0).length;
+  document.getElementById("status").textContent = msg || `${n} 問を差し替え中`;
+}
+function cur(i){ return picks[i].custom ? picks[i].custom : Q[i].cands[picks[i].sel]; }
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function render(){
+  const w=document.getElementById("wrap"); w.innerHTML="";
+  const tip=document.createElement("div");
+  tip.className="tip";
+  tip.textContent="赤いタグが付いた4問に問題があります。オレンジの「推奨」が私のおすすめです。候補が1つだけの問は、読み返して問題が見つからなかったものです。文言はどれも「この案を微調整」から直せます。";
+  w.appendChild(tip);
+
+  AXES.forEach(ax=>{
+    const h=document.createElement("div");
+    h.className="axis-head";
+    h.innerHTML=`<h2>${ax.title}</h2><span>${ax.a} ↔ ${ax.b}</span>`;
+    w.appendChild(h);
+
+    Q.forEach((q,i)=>{
+      if(q.axis!==ax.id) return;
+      const p=picks[i];
+      const changed = p.custom || p.sel!==0;
+      const block=document.createElement("div");
+      block.className="qblock";
+      let html=`<div class="qhead"><span class="qnum">Q${i+1}</span>
+        <span class="badge ${q.cands.length>1?"fix":"keep"}">${q.cands.length>1?"要検討":"問題なし"}</span>
+        ${changed?'<span class="badge keep">差し替え済み</span>':""}
+      </div><p class="qmemo">${q.memo}</p>`;
+
+      q.cands.forEach((c,ci)=>{
+        const custom = p.custom && p.sel===ci;
+        const shown = custom ? p.custom : c;
+        html+=`<div class="cand${p.sel===ci?" on":""}" tabindex="0" data-i="${i}" data-c="${ci}">
+          <div class="cand-top"><span class="tick"></span>
+            <span class="tag ${c.bad?"bad":(c.rec?"rec":(ci>0?"new":""))}">${c.tag}</span>
+            ${c.rec?'<span class="tag rec">おすすめ</span>':""}
+            ${custom?'<span class="tag">微調整あり</span>':""}
+          </div>
+          <div class="ctext">${esc(shown.text)}</div>
+          <div class="opt a">A. ${esc(shown.a)}</div>
+          <div class="opt b">B. ${esc(shown.b)}</div>
+          ${c.note?`<p class="note">${esc(c.note)}</p>`:""}
+        </div>`;
+      });
+
+      const cc=cur(i);
+      html+=`<div class="tweak">
+        <button data-act="tweak" data-i="${i}">この案を微調整</button>
+        <div class="editor" id="ed-${i}">
+          <label>質問文</label><textarea rows="2" data-i="${i}" data-f="text">${esc(cc.text)}</textarea>
+          <label>選択肢A</label><textarea rows="2" data-i="${i}" data-f="a">${esc(cc.a)}</textarea>
+          <label>選択肢B</label><textarea rows="2" data-i="${i}" data-f="b">${esc(cc.b)}</textarea>
+        </div></div>`;
+      block.innerHTML=html;
+      w.appendChild(block);
+    });
+  });
+}
+
+const w=document.getElementById("wrap");
+w.addEventListener("click",e=>{
+  const tw=e.target.closest('[data-act="tweak"]');
+  if(tw){document.getElementById("ed-"+tw.dataset.i).classList.toggle("open");return;}
+  const c=e.target.closest(".cand");
+  if(c){
+    const i=Number(c.dataset.i);
+    picks[i]={sel:Number(c.dataset.c),custom:null};
+    render(); save();
+  }
+});
+w.addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("cand")){e.preventDefault();e.target.click();}
+});
+w.addEventListener("input",e=>{
+  const ta=e.target;
+  if(ta.tagName!=="TEXTAREA")return;
+  const i=Number(ta.dataset.i);
+  if(!picks[i].custom) picks[i].custom={...Q[i].cands[picks[i].sel]};
+  picks[i].custom[ta.dataset.f]=ta.value;
+  save();
+});
+
+document.getElementById("rec").addEventListener("click",()=>{
+  picks=Q.map((q,i)=>{
+    const r=q.cands.findIndex(c=>c.rec);
+    return {sel: r>=0?r:0, custom:null};
+  });
+  render(); save();
+});
+document.getElementById("reset").addEventListener("click",()=>{
+  picks=Q.map(()=>({sel:0,custom:null})); render(); save();
+});
+
+/* ---------- 書き出し ---------- */
+function q(s){return String(s).replace(/\\/g,"\\\\").replace(/"/g,'\\"');}
+function build(){
+  const L=["const QUESTIONS = ["];
+  let prev="";
+  Q.forEach((qq,i)=>{
+    if(qq.axis!==prev){
+      const ax=AXES.find(a=>a.id===qq.axis);
+      L.push(`  // ${ax.title}（${ax.a} / ${ax.b}）`); prev=qq.axis;
+    }
+    const c=cur(i);
+    const rev = (picks[i].custom ? Q[i].cands[picks[i].sel].revA : c.revA) ? " rev: true," : "";
+    L.push(`  { axis: "${qq.axis}",${rev} text: "${q(c.text)}",`);
+    L.push(`    a: "${q(c.a)}",`);
+    L.push(`    b: "${q(c.b)}" },`);
+  });
+  L.push("];");
+  return L.join("\n");
+}
+document.getElementById("export").addEventListener("click",()=>{
+  document.getElementById("code").textContent=build();
+  document.getElementById("modal").classList.add("open");
+});
+document.getElementById("close").addEventListener("click",()=>
+  document.getElementById("modal").classList.remove("open"));
+document.getElementById("modal").addEventListener("click",e=>{
+  if(e.target.id==="modal")e.currentTarget.classList.remove("open");
+});
+document.getElementById("copy").addEventListener("click",async()=>{
+  const b=document.getElementById("copy");
+  try{await navigator.clipboard.writeText(build());b.textContent="コピーしました";}
+  catch(e){
+    const r=document.createRange();r.selectNodeContents(document.getElementById("code"));
+    const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="選択しました";
+  }
+  setTimeout(()=>b.textContent="コピー",2000);
+});
+
+(async()=>{await load();render();})();
+</script>
+</body>
+</html>

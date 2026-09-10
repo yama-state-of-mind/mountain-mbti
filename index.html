@@ -110,12 +110,23 @@
   <!-- ========== 結果画面 ========== -->
   <section id="screen-result" class="screen">
     <div class="result">
-      <p class="result-eyebrow">あなたの登山タイプは</p>
-      <p class="result-code" id="result-code"></p>
-      <div class="result-char" id="result-char"><!-- キャラクター --></div>
-      <h2 class="result-animal" id="result-animal"></h2>
-      <p class="result-name" id="result-name"></p>
-      <p class="result-copy" id="result-copy"></p>
+      <div class="result-hero" id="result-hero">
+        <p class="result-eyebrow">あなたの登山タイプは</p>
+        <p class="result-code" id="result-code"></p>
+        <div class="result-char" id="result-char"><!-- キャラクター --></div>
+        <h2 class="result-animal" id="result-animal"></h2>
+        <p class="result-name" id="result-name"></p>
+        <p class="result-copy" id="result-copy"></p>
+        <div class="result-axtags" id="result-axtags"><!-- 4軸のタグ --></div>
+        <svg class="ridge-cut" viewBox="0 0 400 58" preserveAspectRatio="none" aria-hidden="true">
+          <!-- 奥の稜線 -->
+          <path class="rc-back"
+                d="M0 58 L0 34 L46 20 L88 32 L140 2 L196 30 L238 18 L286 34 L336 8 L376 24 L400 18 L400 58 Z"/>
+          <!-- 手前の稜線（ページ背景と同じ色でくり抜く） -->
+          <path class="rc-front"
+                d="M0 58 L0 46 L54 30 L104 44 L162 18 L214 42 L258 32 L308 46 L358 26 L400 38 L400 58 Z"/>
+        </svg>
+      </div>
 
       <section class="panel">
         <h3 class="panel-title">特徴</h3>

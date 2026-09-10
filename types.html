@@ -29,51 +29,6 @@
       <div class="axis-table" id="axis-table"></div>
     </section>
 
-    <section class="legend">
-      <h2>キャラクターの読み方</h2>
-      <p>絵の3か所を見ると、4文字のうち3つが分かります。濃い文字が、この子に当てはまるほうです。</p>
-      <div class="guide">
-        <svg viewBox="0 0 340 178" role="img" aria-label="キャラクターの読み方の図">
-          <g id="ch" transform="translate(4 32) scale(0.66)"></g>
-
-          <path class="g-line" d="M100 64 L124 46 L130 46"/>
-          <circle class="g-dot" cx="100" cy="64" r="3"/>
-          <text class="g-lbl" x="132" y="46">すみか</text>
-          <text class="g-opt" x="132" y="64">高山</text>
-          <rect x="156.2" y="54" width="17" height="13" rx="3.5" fill="#1E3A31"/>
-          <text class="g-chip-t" x="164.7" y="63.7" fill="#fff">P</text>
-          <text class="g-slash" x="179.2" y="64">／</text>
-          <text class="g-opt" x="195.2" y="64">森</text>
-          <rect x="209.8" y="54" width="17" height="13" rx="3.5" fill="#EDF1EE"/>
-          <text class="g-chip-t" x="218.3" y="63.7" fill="#7C8A83">E</text>
-
-          <path class="g-line" d="M104 88 L124 96 L130 96"/>
-          <circle class="g-dot" cx="104" cy="88" r="3"/>
-          <text class="g-lbl" x="132" y="96">暮らし方</text>
-          <text class="g-opt" x="132" y="114">単独</text>
-          <rect x="156.2" y="104" width="17" height="13" rx="3.5" fill="#1E3A31"/>
-          <text class="g-chip-t" x="164.7" y="113.7" fill="#fff">S</text>
-          <text class="g-slash" x="179.2" y="114">／</text>
-          <text class="g-opt" x="195.2" y="114">群れ</text>
-          <rect x="219.4" y="104" width="17" height="13" rx="3.5" fill="#EDF1EE"/>
-          <text class="g-chip-t" x="227.9" y="113.7" fill="#7C8A83">G</text>
-
-          <path class="g-line" d="M96 120 L122 146 L130 146"/>
-          <circle class="g-dot" cx="96" cy="120" r="3"/>
-          <text class="g-lbl" x="132" y="146">持ちもの</text>
-          <text class="g-opt" x="132" y="164">道具</text>
-          <rect x="156.2" y="154" width="17" height="13" rx="3.5" fill="#1E3A31"/>
-          <text class="g-chip-t" x="164.7" y="163.7" fill="#fff">L</text>
-          <text class="g-slash" x="179.2" y="164">／</text>
-          <text class="g-opt" x="195.2" y="164">嗜好品</text>
-          <rect x="229" y="154" width="17" height="13" rx="3.5" fill="#EDF1EE"/>
-          <text class="g-chip-t" x="237.5" y="163.7" fill="#7C8A83">F</text>
-        </svg>
-        <p class="g-cap">PSLA　イヌワシ（孤高の民）</p>
-      </div>
-      <p class="g-note">4文字目の<b>リスク</b>は絵に表れません。各タイプの<b>特徴</b>と<b>気をつけたいこと</b>を読んでみてください。</p>
-    </section>
-
     <section class="legend legend-plain">
       <h2>16タイプは4つのグループに分かれます</h2>
       <p>最初の2文字、つまり<b>目的</b>と<b>仲間</b>の組み合わせで、16タイプは大きく4つに分かれます。見たいグループを選んでください。</p>
@@ -104,27 +59,26 @@
 const ORDER = ["PS", "PG", "ES", "EG"];
 const codesOf = (key) => Object.keys(TYPES).filter((c) => c.slice(0, 2) === key);
 
-/* ---------- 読み方の図にイヌワシを差し込む ---------- */
-const guideBox = document.getElementById("ch");
-if (guideBox) {
-  guideBox.innerHTML = characterSVG("PSLA").replace(/<svg[^>]*>|<\/svg>/g, "");
-}
-
 /* ---------- 4軸の解説 ---------- */
 const AXIS_MEMO = {
-  PE: "山頂に立つことに価値を置くか、そこに至る過程を味わうか",
-  SG: "ひとりで山と向き合う時間か、誰かと分け合う時間か",
-  LF: "数字と情報で組み立てるか、その日の感覚で決めるか",
-  CA: "備えを厚くして安全側に振るか、身軽に踏み込むか",
+  PE: "山頂に立つことか、そこに至る過程か",
+  SG: "ひとりで向き合う時間か、分け合う時間か",
+  LF: "数字で組み立てるか、その日の感覚か",
+  CA: "備えを厚くするか、身軽に踏み込むか",
 };
 document.getElementById("axis-table").innerHTML = AXES.map((ax, i) => `
-  <div class="ax-row">
-    <span class="ax-pos">${i + 1}文字目</span>
-    <div class="ax-main">
-      <p class="ax-title">${ax.title}</p>
-      <p class="ax-pair"><b>${ax.a}</b> ${ax.aName}　／　<b>${ax.b}</b> ${ax.bName}</p>
-      <p class="ax-memo">${AXIS_MEMO[ax.id]}</p>
+  <div class="ax-item">
+    <div class="ax-head">
+      <span class="ax-pos">${i + 1}</span>
+      <span class="ax-name">${ax.title}</span>
     </div>
+    <div class="ax-pair">
+      <div class="ax-side l"><span class="ax-ltr">${ax.a}</span><p class="ax-word">${ax.aName}</p></div>
+      <span class="ax-vs">or</span>
+      <div class="ax-side r"><span class="ax-ltr">${ax.b}</span><p class="ax-word">${ax.bName}</p></div>
+    </div>
+    <div class="ax-bar"><i></i><i></i></div>
+    <p class="ax-memo">${AXIS_MEMO[ax.id]}</p>
   </div>`).join("");
 
 /* ---------- 入口の4グループカード ---------- */

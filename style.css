@@ -346,26 +346,28 @@ body {
 .result {
   margin: auto 0;
   text-align: center;
-  padding: 28px 0;
+  padding: 0 0 28px;
 }
 .result-eyebrow {
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 700;
+  letter-spacing: .08em;
   color: var(--stone);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
+/* コードは記号なので小さく。主役は動物名 */
 .result-code {
   display: inline-block;
   background: var(--pine); /* JSがグループ色に差し替えます */
   color: #fff;
-  font-size: 33px;
-  font-weight: 900;
-  letter-spacing: .2em;
-  line-height: 1.25;
-  padding: 11px 16px 11px 24px;
-  border-radius: 14px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-card);
+  font-family: "Outfit", var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  line-height: 1;
+  padding: 6px 9px 6px 15px;
+  border-radius: 7px;
+  margin-bottom: 4px;
 }
 
 .result-desc {
@@ -420,17 +422,19 @@ body {
 /* ---------- 小さい画面の微調整 ---------- */
 @media (max-width: 360px) {
   .hero-title { font-size: 29px; }
-  .result-code { font-size: 28px; padding: 10px 14px 10px 21px; }
+  .result-animal { font-size: 31px; }
+  .char-lg { width: 128px; }
 }
 
 
 /* ---------- 結果画面：キャッチコピー ---------- */
 .result-copy {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--fjord);
-  margin-bottom: 26px;
+  margin: 22px 0 30px;
   padding: 0 8px;
+  line-height: 1.7;
 }
 
 /* ---------- 結果画面：説明パネル ---------- */
@@ -499,22 +503,22 @@ body {
    キャラクター
    ========================================================= */
 .char { display: block; width: 100%; height: auto; }
-.char-lg { width: 168px; margin: 0 auto; }
+.char-lg { width: 142px; margin: 0 auto; }
 .char-sm { width: 62px; flex-shrink: 0; }
 
-.result-char { margin: 2px 0 6px; }
+.result-char { margin: 6px 0 2px; }
 .result-animal {
-  font-size: 27px;
+  font-size: 36px;
   font-weight: 900;
-  letter-spacing: .04em;
-  line-height: 1.35;
-  margin-bottom: 4px;
+  letter-spacing: .06em;
+  line-height: 1.3;
+  margin-bottom: 2px;
 }
 .result-name {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
+  letter-spacing: .04em;
   color: var(--stone);
-  margin-bottom: 12px;
 }
 
 /* 相性欄はキャラクターを左に並べる */
@@ -550,7 +554,31 @@ body {
   border-radius: 18px;
   padding: 12px 8px;
 }
-.cast .char { width: 100%; max-width: 74px; margin: 0 auto; }
+.cast .char {
+  width: 100%;
+  max-width: 74px;
+  margin: 0 auto;
+  /* 開いたときに順番に現れ、そのあとゆっくり上下に揺れる */
+  opacity: 0;
+  animation:
+    castIn .5s cubic-bezier(.2, .7, .3, 1) forwards,
+    castFloat var(--fd, 5.2s) ease-in-out infinite;
+  animation-delay: var(--d, 0s), calc(var(--d, 0s) + .5s);
+}
+
+@keyframes castIn {
+  from { opacity: 0; transform: translateY(10px) scale(.94); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes castFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* 動きが苦手な人には出さない */
+@media (prefers-reduced-motion: reduce) {
+  .cast .char { opacity: 1; animation: none; }
+}
 
 /* =========================================================
    16タイプ紹介ページ（types.html）
@@ -781,36 +809,57 @@ body {
 .match-link:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
 
 /* =========================================================
-   紹介ページ：4軸と4グループの解説
+   紹介ページ：4軸の解説（左右対比）
    ========================================================= */
-.axis-table { margin-top: 12px; }
-.ax-row {
-  display: flex;
-  gap: 12px;
-  padding: 11px 0;
-  border-top: 1px solid var(--line);
-}
-.ax-row:first-child { border-top: none; padding-top: 4px; }
+.axis-table { margin-top: 16px; }
+.ax-item { padding: 14px 0; border-top: 1px solid var(--line); }
+.ax-item:first-child { border-top: none; padding-top: 4px; }
+
+.ax-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
 .ax-pos {
-  flex-shrink: 0;
-  width: 58px;
-  font-size: 11.5px;
+  font-family: "Outfit", var(--font);
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: .06em;
   color: var(--stone);
-  padding-top: 3px;
-}
-.ax-main { flex: 1; min-width: 0; }
-.ax-title { font-size: 14px; font-weight: 900; line-height: 1.5; }
-.ax-pair { font-size: 13.5px; margin-top: 2px; color: #3d4d46; }
-.ax-pair b {
-  font-weight: 900;
-  color: #fff;
-  background: var(--pine);
+  background: #F0F3F1;
   border-radius: 4px;
-  padding: 0 5px;
-  margin-right: 2px;
+  padding: 2px 6px;
 }
-.ax-memo { font-size: 12.5px; color: var(--stone); margin-top: 3px; line-height: 1.7; }
+.ax-name { font-size: 13.5px; font-weight: 900; }
+
+.ax-pair { display: flex; align-items: stretch; gap: 9px; }
+.ax-side {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  border-radius: 12px;
+  padding: 9px 6px 8px;
+}
+.ax-side.l { background: #EAF0EC; }
+.ax-side.r { background: #EAF0F5; }
+.ax-ltr {
+  font-family: "Outfit", var(--font);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-block;
+  border-radius: 6px;
+  padding: 4px 9px;
+  color: #fff;
+}
+.ax-side.l .ax-ltr { background: var(--pine); }
+.ax-side.r .ax-ltr { background: var(--fjord); }
+.ax-word { font-size: 12.5px; font-weight: 700; margin-top: 6px; line-height: 1.4; }
+.ax-side.l .ax-word { color: var(--pine); }
+.ax-side.r .ax-word { color: #2E4B60; }
+.ax-vs { align-self: center; font-size: 10.5px; color: #C3CFC8; font-weight: 700; }
+
+.ax-bar { display: flex; height: 5px; border-radius: 999px; overflow: hidden; margin-top: 9px; }
+.ax-bar i { flex: 1; }
+.ax-bar i:first-child { background: var(--pine); }
+.ax-bar i:last-child { background: var(--fjord); }
+.ax-memo { font-size: 12px; color: var(--stone); margin-top: 8px; line-height: 1.7; text-align: center; }
 
 .group-table { display: grid; gap: 8px; margin-top: 12px; }
 .gr-row {
@@ -829,24 +878,110 @@ body {
 .gr-lead { font-size: 12.5px; color: #3d4d46; }
 .gr-axis { font-size: 11.5px; color: var(--stone); flex-basis: 100%; }
 
-/* ---------- 紹介ページ：キャラクターの読み方の図 ---------- */
-.guide { margin: 14px 0 4px; }
-.guide svg { width: 100%; height: auto; display: block; }
-.g-line { stroke: #C3CFC8; stroke-width: 1.6; fill: none; }
-.g-dot { fill: var(--sun); }
-.g-lbl { font-family: var(--font); font-size: 10.6px; font-weight: 900; fill: var(--pine); }
-.g-opt { font-family: var(--font); font-size: 9.6px; font-weight: 500; fill: #3d4d46; }
-.g-slash { font-family: var(--font); font-size: 9.6px; fill: #C3CFC8; }
-.g-chip-t { font-family: "Outfit", var(--font); font-size: 9.6px; font-weight: 700; text-anchor: middle; }
-.g-cap { font-size: 11.5px; color: var(--stone); text-align: center; margin-top: 2px; }
-.g-note {
-  font-size: 12.5px;
-  color: var(--stone);
-  margin-top: 12px;
-  padding-top: 11px;
-  border-top: 1px solid var(--line);
-  line-height: 1.75;
-}
-.g-note b { color: var(--pine); }
-
 .legend-plain { margin-bottom: 14px; }
+
+/* =========================================================
+   結果画面：ヒーロー帯と波の区切り
+   ========================================================= */
+.result-hero {
+  position: relative;
+  /* 画面の端まで、上は最上部まで広げる */
+  margin: calc(-1 * max(20px, env(safe-area-inset-top))) -20px 0;
+  padding: calc(30px + max(20px, env(safe-area-inset-top))) 20px 74px;
+  overflow: hidden;
+  background: #E9EEF1;        /* JSがグループの淡色に差し替えます */
+}
+/* 帯の下端を稜線で切る。奥は濃い山影、手前はページ背景でくり抜く */
+.result-hero .ridge-cut {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 58px;
+  display: block;
+}
+.rc-back { fill: rgba(30, 58, 49, .13); }
+.rc-front { fill: var(--birch); }
+.result-hero .result-copy { margin-bottom: 0; }
+
+/* 4軸のタグ */
+.result-axtags {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+@media (min-width: 460px) {
+  .result-axtags { grid-template-columns: repeat(4, auto); }
+}
+.axtag {
+  font-size: 11.5px;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 4px 12px 4px 9px;
+  background: rgba(255, 255, 255, .72);
+  line-height: 1.5;
+}
+.axtag b {
+  font-family: "Outfit", var(--font);
+  font-weight: 700;
+  font-size: 12.5px;
+  margin-right: 5px;
+}
+.axtag.s-a { color: #2b463c; }
+.axtag.s-a b { color: var(--pine); }
+.axtag.s-b { color: #2E4B60; }
+.axtag.s-b b { color: var(--fjord); }
+
+/* パネルの見出しを中央揃えに */
+.panel { text-align: center; }
+.panel-title {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  margin: 0 0 12px;
+  padding: 0 0 6px;
+  border-left: none;
+  border-bottom: 2.5px solid var(--pine);
+  line-height: 1.4;
+}
+.panel-caution .panel-title { border-bottom-color: var(--sun); }
+.panel-body { text-align: left; }
+.axes { text-align: left; }
+
+/* =========================================================
+   結果画面：順番に現れる演出
+   ========================================================= */
+.result > *,
+.result-hero > *:not(.wave) { opacity: 0; }
+
+.result.reveal > *,
+.result.reveal .result-hero > *:not(.wave) {
+  animation: resIn .5s cubic-bezier(.2, .7, .3, 1) forwards;
+  animation-delay: calc(var(--i, 0) * .12s);
+}
+.result.reveal .result-char {
+  animation: resPop .55s cubic-bezier(.2, 1.3, .4, 1) forwards;
+  animation-delay: calc(var(--i, 0) * .12s);
+}
+.result.reveal .result-hero { opacity: 1; animation: none; }
+
+@keyframes resIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes resPop {
+  from { opacity: 0; transform: scale(.82); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result > *,
+  .result-hero > *:not(.wave) { opacity: 1; }
+  .result.reveal > *,
+  .result.reveal .result-hero > *:not(.wave),
+  .result.reveal .result-char { animation: none; }
+}

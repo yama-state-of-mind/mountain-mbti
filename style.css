@@ -122,6 +122,8 @@ body {
   font-size: 14.5px;
   color: #45564e;
   margin-bottom: 30px;
+  /* 行末に1〜2文字だけ残るのを防ぐ */
+  text-wrap: balance;
 }
 .hero-lead strong { color: var(--pine); }
 .hero-note {
@@ -506,11 +508,16 @@ body {
 .cast {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px 6px;
-  margin-bottom: 20px;
+  gap: 10px 6px;
+  border-radius: 22px;
+  padding: 16px 10px;
+  margin-bottom: 22px;
 }
-.cast .char { width: 100%; max-width: 78px; margin: 0 auto; }
-.cast-bottom { margin: 28px 0 0; }
+.cast .char { width: 100%; max-width: 76px; margin: 0 auto; }
+
+/* 上段は高山の生き物、下段は森の生き物。帯の色をそれぞれに合わせる */
+#cast-top    { background: #E9EFEB; }
+#cast-bottom { background: #F2EDE4; margin: 30px 0 0; }
 
 /* =========================================================
    16タイプ紹介ページ（types.html）

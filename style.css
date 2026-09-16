@@ -53,6 +53,10 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .screen.is-active, .quiz-page { animation: none !important; }
+  .q-card { opacity: 1; transform: none; animation: none !important; }
+  .dot.selected { animation: none; }
+  .climb-marker.hop { animation: none; }
+  .summit-spark.show { animation: none; opacity: 0; }
 }
 
 /* ---------- ボタン ---------- */
@@ -95,13 +99,6 @@ body {
   text-align: center;
   padding: 24px 0;
 }
-.hero-mountains {
-  width: min(320px, 82%);
-  display: block;
-  margin: 0 auto 18px;
-}
-.hero-mountains .mt.back  { fill: none; stroke: var(--fjord); stroke-width: 3; stroke-linejoin: round; opacity: .55; }
-.hero-mountains .mt.front { fill: none; stroke: var(--pine);  stroke-width: 3.5; stroke-linejoin: round; }
 .hero-mountains .sun  { fill: var(--sun); }
 .hero-mountains .snow { fill: var(--pine); opacity: .9; }
 
@@ -113,8 +110,9 @@ body {
   font-weight: 500;
   letter-spacing: .24em;
   color: var(--fjord);
-  margin-top: -6px;
-  margin-bottom: 18px;
+  line-height: 1.15;
+  margin-top: -2px;   /* タイトルの副題として詰めて寄り添わせる */
+  margin-bottom: 0;
 }
 .hero-en b,
 .list-en b {
@@ -124,29 +122,28 @@ body {
   color: var(--sun);
   margin-right: 2px;
 }
-.list-en { margin-top: 6px; margin-bottom: 8px; }
+.list-en { margin-top: 6px; margin-bottom: 8px; line-height: 1.4; }
 .hero-title {
   font-size: 34px;
   font-weight: 900;
   letter-spacing: .04em;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 .hero-title .beta {
   display: inline-block;
-  vertical-align: 12px;
-  margin-left: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .06em;
+  vertical-align: baseline;
+  margin-left: 0;
+  font-family: "Outfit", var(--font);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
   color: var(--sun);
   background: #FBF1DE;
   border: 1.5px solid #EBD5A8;
   border-radius: 999px;
   padding: 2px 10px;
 }
-@media (max-width: 380px) {
-  .hero-title .beta { vertical-align: 10px; font-size: 11px; padding: 2px 8px; }
-}
+
 .hero-lead {
   font-size: 14.5px;
   color: #45564e;
@@ -201,10 +198,23 @@ body {
 }
 .climb-marker {
   fill: var(--pine);
-  transition: cx .45s ease, cy .45s ease;
+  transition: cx .45s cubic-bezier(.34, 1.56, .64, 1), cy .45s cubic-bezier(.34, 1.56, .64, 1);
+}
+/* 1問答えるごとに、マーカーがぴょんと跳ねながら進む */
+.climb-marker.hop { animation: markerHop .45s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes markerHop {
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(-9px) scale(1.12); }
+  100% { transform: translateY(0) scale(1); }
 }
 
-/* 道標 */
+/* 遊び心：Midpointの手前は木、その先は岩をちらす（背景の飾り・進捗には無関係） */
+.deco-tree path { fill: var(--pine); }
+.deco-tree rect  { fill: #8B6A4A; }
+.deco-tree, .deco-rock { opacity: .5; }
+.deco-rock path { fill: var(--stone); }
+
+/* 道標（Start / Midpoint / Summit） */
 .sign .pole {
   stroke: var(--line);
   stroke-width: 1.6;
@@ -219,19 +229,56 @@ body {
 }
 .sign .board-text {
   fill: var(--stone);
-  font-family: var(--font);
-  font-size: 7.4px;
+  font-family: "Outfit", var(--font);
+  font-size: 6.6px;
   font-weight: 700;
+  letter-spacing: .04em;
   text-anchor: middle;
   transition: fill .4s ease;
 }
+.sign .flag {
+  fill: var(--line);
+  transition: fill .4s ease;
+}
+.sign .flag-text {
+  fill: var(--stone);
+  font-family: "Outfit", var(--font);
+  font-size: 6.2px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-anchor: middle;
+  transition: fill .4s ease;
+}
+/* 道の上の丸。通過すると塗りつぶす */
+.sign .node {
+  fill: var(--paper);
+  stroke: var(--line);
+  stroke-width: 2.2;
+  transition: fill .4s ease, stroke .4s ease;
+}
+
 .sign.passed .pole { stroke: var(--pine); }
 .sign.passed .board { fill: var(--pine); stroke: var(--pine); }
 .sign.passed .board-text { fill: #fff; }
+.sign.passed .flag { fill: var(--pine); }
+.sign.passed .flag-text { fill: var(--pine); }
+.sign.passed .node { fill: var(--pine); stroke: var(--pine); }
 
-#sign-peak.passed .board { fill: var(--sun); stroke: var(--sun); }
-#sign-peak.passed .board-text { fill: var(--pine); }
 #sign-peak.passed .pole { stroke: var(--sun); }
+#sign-peak.passed .flag { fill: var(--sun); }
+#sign-peak.passed .flag-text { fill: var(--sun); }
+#sign-peak.passed .node { fill: var(--sun); stroke: var(--sun); }
+
+/* 最後の質問に答えた瞬間だけ、山頂にキラキラを出す */
+.summit-spark { opacity: 0; pointer-events: none; }
+.summit-spark.show { animation: summitPop .9s ease forwards; }
+.summit-spark path { fill: var(--sun); }
+@keyframes summitPop {
+  0%   { opacity: 0; transform: scale(.4); }
+  35%  { opacity: 1; transform: scale(1.15); }
+  60%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.3); }
+}
 
 .climb-count {
   fill: var(--stone);
@@ -254,6 +301,13 @@ body {
   margin-bottom: 16px;
   border: 2px solid transparent;
   transition: border-color .25s ease;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: cardIn .45s cubic-bezier(.2, .7, .3, 1) forwards;
+  animation-delay: var(--cd, 0s);
+}
+@keyframes cardIn {
+  to { opacity: 1; transform: none; }
 }
 .q-card.is-answered { border-color: transparent; }
 .q-card.needs-answer { border-color: var(--sun); }
@@ -311,6 +365,7 @@ body {
   background: var(--paper);
   cursor: pointer;
   flex-shrink: 0;
+  position: relative;
   transition: transform .15s ease, background .15s ease, border-color .15s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -325,7 +380,26 @@ body {
 .dot[data-v="0"], .dot[data-v="1"], .dot[data-v="2"] { border-color: #7FA08F; }
 .dot[data-v="3"], .dot[data-v="4"], .dot[data-v="5"] { border-color: #8FAFC4; }
 
-.dot.selected { transform: scale(1.12); }
+.dot.selected { animation: dotPop .38s cubic-bezier(.34, 1.56, .64, 1) forwards; }
+@keyframes dotPop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.32); }
+  100% { transform: scale(1.14); }
+}
+.dot-ripple {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  opacity: .6;
+  animation: rippleOut .5s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes rippleOut {
+  from { transform: scale(1);   opacity: .55; }
+  to   { transform: scale(2.1); opacity: 0; }
+}
 .dot[data-v="0"].selected, .dot[data-v="1"].selected, .dot[data-v="2"].selected {
   background: var(--pine); border-color: var(--pine);
 }
@@ -355,6 +429,18 @@ body {
   color: var(--stone);
   margin-bottom: 10px;
 }
+.result-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.result-group {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
 /* コードは記号なので小さく。主役は動物名 */
 .result-code {
   display: inline-block;
@@ -367,7 +453,6 @@ body {
   line-height: 1;
   padding: 6px 9px 6px 15px;
   border-radius: 7px;
-  margin-bottom: 4px;
 }
 
 .result-desc {
@@ -411,7 +496,18 @@ body {
 }
 .axis-bar.side-a { background: var(--pine); }
 .axis-bar.side-b { background: var(--fjord); margin-left: auto; }
-.axis-pct { font-size: 12px; color: var(--stone); margin-top: 3px; }
+/* 勝った側はオーカーで大きく、負けた側は薄く */
+.axis-labels .win { color: var(--pine); font-weight: 700; }
+.axis-labels .lose { color: #B9C6BF; font-weight: 500; }
+.axis-labels b {
+  font-family: "Outfit", var(--font);
+  font-size: 14.5px;
+  font-weight: 700;
+  margin: 0 0 0 6px;
+}
+.axis-labels .win b { color: var(--sun); }
+.axis-labels .lose b { color: #C9D2CC; }
+.axis-labels span:last-child b { margin: 0 6px 0 0; }
 
 .result-actions {
   display: flex;
@@ -432,7 +528,7 @@ body {
   font-size: 15px;
   font-weight: 700;
   color: var(--fjord);
-  margin: 22px 0 30px;
+  margin: 14px 0 4px;
   padding: 0 8px;
   line-height: 1.7;
 }
@@ -459,7 +555,236 @@ body {
   line-height: 1.85;
   color: #3d4d46;
 }
-.panel-caution .panel-title { border-left-color: var(--sun); }
+
+
+/* ---------- 結果画面：大きなシェアボタン ----------
+   「気をつけたいこと」と4軸バーの間。背景色はJSで生息エリアのdeep色を入れる。
+   パネルより狭い幅にして、ボタンらしさを出す */
+.share-cta-wrap { margin: 18px 0; }
+.share-cta {
+  position: relative;
+  display: flex;
+  border: none;
+  align-items: center;
+  width: 76%;
+  height: 64px;
+  margin: 0 auto;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font);
+  border-radius: var(--radius-btn);
+  color: #FFFFFF;
+  box-shadow: 0 3px 12px rgba(30, 58, 49, .22);
+  padding: 0 18px 0 0;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.share-cta:active { transform: scale(.98); box-shadow: 0 2px 6px rgba(30, 58, 49, .25); }
+/* キャラクター：72px固定・背景円なし・-9度。64pxのボタンから上下に少しはみ出す */
+.share-cta .char {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  transform: rotate(-9deg);
+  margin: -10px 2px -6px 8px;
+  filter: drop-shadow(0 2px 3px rgba(30, 58, 49, .18));
+}
+.share-cta-txt {
+  flex: 1;
+  text-align: center;
+  line-height: 1.35;
+  padding-right: 48px;  /* キャラクターの分だけ右に寄るのを戻す */
+}
+.share-cta-main {
+  display: block;
+  font-size: 16.5px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+.share-cta-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: .85;
+  letter-spacing: .06em;
+}
+
+
+/* ---------- シェア用モーダル（ボトムシート） ----------
+   .screenのtransform対策で、マークアップは.appの外に置いてある */
+.smodal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.smodal-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 34, 29, .55);
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+.smodal.open .smodal-veil { opacity: 1; }
+.smodal-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  background: var(--paper);
+  border-radius: 22px 22px 0 0;
+  padding: 14px 18px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 40px rgba(20, 34, 29, .3);
+  transform: translateY(100%);
+  transition: transform .26s ease;
+}
+.smodal.open .smodal-sheet { transform: none; }
+.smodal-grip {
+  width: 40px;
+  height: 4.5px;
+  border-radius: 999px;
+  background: var(--line);
+  margin: 0 auto 10px;
+}
+.smodal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  background: #EDF2EF;
+  color: var(--stone);
+  font-size: 15px;
+  line-height: 1;
+  font-family: var(--font);
+}
+.smodal-title {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+/* シェア用画像のプレビュー（縦長9:16） */
+.smodal-pv {
+  width: 176px;
+  margin: 0 auto 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 14px rgba(30, 58, 49, .16);
+}
+.smodal-pv svg { display: block; width: 100%; height: auto; }
+/* アクションボタン */
+.smodal-acts { display: grid; gap: 8px; }
+.sm-act {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 999px;
+  padding: 11px 16px;
+  text-decoration: none;
+  transition: transform .12s ease;
+}
+.sm-act:active { transform: scale(.98); }
+.sm-act svg { width: 18px; height: 18px; flex: none; }
+.sm-act span { flex: 1; text-align: center; margin-right: 28px; }
+.sm-dl   { background: var(--pine); }
+.sm-x    { background: #0F1419; }
+.sm-line { background: #06C755; }
+.sm-ig   { background: linear-gradient(45deg, #F58529, #DD2A7B 55%, #8134AF); }
+.sm-copy { background: var(--paper); color: var(--pine); border: 1.6px solid var(--line); }
+.sm-note {
+  font-size: 10.5px;
+  color: var(--stone);
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+/* シークレットキャラの匂わせ（シルエット＋吹き出し） */
+.smodal-tease {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tease-silhouettes { display: flex; flex: none; }
+.tease-silhouettes .char {
+  width: 38px; height: 38px;
+  filter: brightness(0) saturate(100%);
+  opacity: .82;
+}
+.tease-silhouettes .char + .char { margin-left: -8px; }
+.tease-silhouettes .spark { width: 10px; height: 10px; color: var(--sun); margin: -4px 0 0 -4px; }
+
+.tease-bubble {
+  position: relative;
+  font-size: 10.5px;
+  color: var(--pine);
+  line-height: 1.6;
+  text-align: left;
+  background: #EDF3EF;
+  border-radius: 12px;
+  padding: 7px 10px;
+}
+.tease-bubble::before {
+  content: "";
+  position: absolute;
+  left: -6px; top: 12px;
+  width: 0; height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 7px solid #EDF3EF;
+}
+
+/* X・YAMAPのフォロー案内。目立たせすぎない控えめな文字サイズ */
+.tease-follow {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 10.5px;
+  color: var(--stone);
+  line-height: 1.7;
+}
+.tease-follow a {
+  color: var(--stone);
+  font-weight: 700;
+  text-decoration: none;
+}
+.tease-follow a:hover { text-decoration: underline; }
+
+/* トースト */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--pine);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 8px 18px;
+  opacity: 0;
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: none;
+  z-index: 200;
+}
+.toast.show { opacity: 1; transform: translateX(-50%); }
+
 
 /* ---------- 結果画面：相性 ---------- */
 .match { padding: 13px 0; border-bottom: 1px solid var(--line); }
@@ -497,7 +822,7 @@ body {
 /* ---------- 公開前の一時設定 ----------
    Xシェアボタンを非表示にしています。
    内容が固まって公開する準備ができたら、下の1行を削除してください。 */
-#btn-share { display: none; }
+
 
 /* =========================================================
    キャラクター
@@ -506,13 +831,13 @@ body {
 .char-lg { width: 142px; margin: 0 auto; }
 .char-sm { width: 62px; flex-shrink: 0; }
 
-.result-char { margin: 6px 0 2px; }
+.result-char { margin: 4px 0 10px; }
 .result-animal {
   font-size: 36px;
   font-weight: 900;
   letter-spacing: .06em;
   line-height: 1.3;
-  margin-bottom: 2px;
+  margin: 6px 0 2px;
 }
 .result-name {
   font-size: 13.5px;
@@ -526,58 +851,99 @@ body {
 .match-body { flex: 1; }
 
 /* スタート画面・結果画面から一覧へ */
-.hero-link { margin-top: 16px; font-size: 13px; }
-.hero-link a {
-  color: var(--fjord);
-  font-weight: 700;
-  text-decoration: none;
-  border-bottom: 1.5px solid #C3D5E0;
-  padding-bottom: 2px;
+/* 主ボタンより小さい、枠線のサブボタン */
+.hero-link {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 10px;
 }
-.hero-link a:hover { border-bottom-color: var(--fjord); }
+.result .hero-link { margin-top: 20px; }
+.hero-link a {
+  display: inline-block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--fjord);
+  text-decoration: none;
+  background: var(--paper);
+  border: 1.5px solid #C3D5E0;
+  border-radius: 999px;
+  padding: 8px 16px;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s;
+}
+.hero-link a:hover { background: #EDF3F7; border-color: var(--fjord); }
+.hero-link a:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.list-foot.hero-link { margin-top: 22px; }
 .hero-link a:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
 
 /* =========================================================
-   スタート画面のキャラクター配置
+   スタート画面：16タイプが山に集合したビジュアル
+   両斜面と山頂に16体を配置し、麓ほど大きく見えるようにしている
    ========================================================= */
-.cast {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-#cast-top { margin-bottom: 22px; }
-#cast-bottom { margin-top: 30px; }
-.cast-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px 2px;
-  border-radius: 18px;
-  padding: 12px 8px;
-}
-.cast .char {
-  width: 100%;
-  max-width: 74px;
-  margin: 0 auto;
-  /* 開いたときに順番に現れ、そのあとゆっくり上下に揺れる */
+.cluster-wrap { margin: 0 -4px 2px; }
+.cluster-wrap svg { display: block; width: 100%; height: auto; }
+
+/* キャラクター1体ぶんの浮遊アニメーション。
+   位置（translate）は親のgに固定でつけてあるので、ここでは動きだけを扱う。
+   ※ CSSのtransformはSVGのtransform属性を丸ごと上書きしてしまうため、
+     位置指定用のgとアニメーション用のgは必ず分けること */
+.cl-char {
+  transform-origin: center bottom;
   opacity: 0;
   animation:
-    castIn .5s cubic-bezier(.2, .7, .3, 1) forwards,
-    castFloat var(--fd, 5.2s) ease-in-out infinite;
+    clusterIn .5s cubic-bezier(.2, .7, .3, 1) forwards,
+    clusterFloat var(--fd, 4.4s) ease-in-out infinite;
   animation-delay: var(--d, 0s), calc(var(--d, 0s) + .5s);
 }
-
-@keyframes castIn {
-  from { opacity: 0; transform: translateY(10px) scale(.94); }
+@keyframes clusterIn {
+  from { opacity: 0; transform: translateY(10px) scale(.9); }
   to   { opacity: 1; transform: none; }
 }
-@keyframes castFloat {
+@keyframes clusterFloat {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* トップの一言。ボタン風にせず、控えめな見出しとして */
+.hook {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: #C98A1F;
+  margin: 4px 0 0;
+}
+
+/* 「16 TYPES OF HIKERS」とバージョンを同じ行に並べる */
+.hero-en-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: -2px 0 16px;
+}
+.hero-en-row .hero-en { margin: 0; }
+
+/* バージョン表示：番号・日付は出さず、山の名前だけをシンプルに。赤みの色で目立たせる。
+   「診断をはじめる」ボタン（丸ピル）と形がかぶらないよう角丸の四角にしている */
+.ver-badge {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: #fff;
+  background: #C1503E;
+  border: 1.5px solid #C1503E;
+  border-radius: 7px;
+  padding: 3px 11px;
 }
 
 /* 動きが苦手な人には出さない */
 @media (prefers-reduced-motion: reduce) {
-  .cast .char { opacity: 1; animation: none; }
+  .cl-char { opacity: 1; animation: none; }
+  .result.reveal .result-char { animation: none; }
 }
 
 /* =========================================================
@@ -739,7 +1105,9 @@ body {
 .tc-copy { font-size: 13.5px; font-weight: 700; color: var(--fjord); margin-top: 6px; line-height: 1.6; }
 
 /* 4軸の内訳 */
+  /* コードの行との間隔を広げる */
 .ti-axes {
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -765,14 +1133,41 @@ body {
   border-left: 4px solid var(--pine);
   line-height: 1.4;
 }
-.ti-caution .ti-label { border-left-color: var(--sun); }
+
 .ti-text { font-size: 13.5px; line-height: 1.85; color: #3d4d46; }
 
+/* 持ちもの（キャッチコピーの下） */
 .ti-item {
-  font-size: 12px;
+  display: inline-block;
+  font-size: 11.5px;
   color: var(--stone);
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
+  background: #F2F5F3;
+  border-radius: 999px;
+  padding: 3px 12px;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.ti-item b {
+  font-weight: 700;
+  color: #3d4d46;
+  margin-right: 6px;
+}
+
+/* 結果画面の持ちもの */
+.result-item {
+  display: inline-block;
+  font-size: 12px;
+  color: #4a5a52;
+  background: rgba(255, 255, 255, .72);
+  border-radius: 999px;
+  padding: 4px 14px;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+.result-item b {
+  font-weight: 700;
+  color: var(--pine);
+  margin-right: 7px;
 }
 
 /* 紹介ページ内の相性リンク */
@@ -811,76 +1206,200 @@ body {
 .match-link:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
 
 /* =========================================================
-   紹介ページ：4軸の解説（左右対比）
+   仕組みのページ：4軸の解説（左右対比）
    ========================================================= */
-.axis-table { margin-top: 16px; }
-.ax-item { padding: 14px 0; border-top: 1px solid var(--line); }
+.axis-table { margin-top: 14px; }
+.ax-item { padding: 15px 0; border-top: 1px solid #EAEEEB; }
 .ax-item:first-child { border-top: none; padding-top: 4px; }
 
-.ax-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
-.ax-pos {
+.ax-row { display: flex; align-items: center; gap: 10px; }
+.ax-end { flex-shrink: 0; width: 84px; text-align: center; }
+.ax-ltr {
+  display: block;
   font-family: "Outfit", var(--font);
-  font-size: 10px;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: .95;
+}
+.ax-end.l .ax-ltr { color: var(--pine); }
+.ax-end.r .ax-ltr { color: var(--fjord); }
+.ax-word {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  line-height: 1.35;
+  color: var(--stone);
+}
+.ax-en {
+  display: block;
+  font-family: "Outfit", var(--font);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: #A9B5AE;
+  margin-top: 2px;
+}
+.ax-mid { flex: 1; min-width: 0; text-align: center; }
+.ax-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  color: #3d4d46;
+  margin-bottom: 6px;
+}
+.ax-arrow { display: block; width: 100%; height: 12px; }
+.ax-memo {
+  font-size: 11.5px;
+  color: var(--stone);
+  margin-top: 10px;
+  line-height: 1.65;
+  text-align: center;
+}
+
+/* =========================================================
+   仕組みのページ：4系統のマトリクス
+   ========================================================= */
+.matrix { margin: 8px 0 4px; }
+.mx-axis {
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: .06em;
   color: var(--stone);
-  background: #F0F3F1;
-  border-radius: 4px;
-  padding: 2px 6px;
-}
-.ax-name { font-size: 13.5px; font-weight: 900; }
-
-.ax-pair { display: flex; align-items: stretch; gap: 9px; }
-.ax-side {
-  flex: 1;
-  min-width: 0;
   text-align: center;
-  border-radius: 12px;
-  padding: 9px 6px 8px;
+  line-height: 1.4;
 }
-.ax-side.l { background: #EAF0EC; }
-.ax-side.r { background: #EAF0F5; }
-.ax-ltr {
+/* 軸のアルファベット */
+.mx-axis b {
   font-family: "Outfit", var(--font);
   font-size: 17px;
   font-weight: 700;
-  line-height: 1;
-  display: inline-block;
-  border-radius: 6px;
-  padding: 4px 9px;
-  color: #fff;
+  color: var(--pine);
+  margin-right: 4px;
+  vertical-align: -1px;
 }
-.ax-side.l .ax-ltr { background: var(--pine); }
-.ax-side.r .ax-ltr { background: var(--fjord); }
-.ax-word { font-size: 12.5px; font-weight: 700; margin-top: 6px; line-height: 1.4; }
-.ax-side.l .ax-word { color: var(--pine); }
-.ax-side.r .ax-word { color: #2E4B60; }
-.ax-vs { align-self: center; font-size: 10.5px; color: #C3CFC8; font-weight: 700; }
+.mx-left b, .mx-bottom b { color: var(--fjord); }
 
-.ax-bar { display: flex; height: 5px; border-radius: 999px; overflow: hidden; margin-top: 9px; }
-.ax-bar i { flex: 1; }
-.ax-bar i:first-child { background: var(--pine); }
-.ax-bar i:last-child { background: var(--fjord); }
-.ax-memo { font-size: 12px; color: var(--stone); margin-top: 8px; line-height: 1.7; text-align: center; }
+.mx-top { margin-bottom: 6px; }
+.mx-bottom { margin-top: 6px; }
+.mx-mid { display: flex; align-items: stretch; gap: 5px; }
+.mx-left, .mx-right {
+  flex-shrink: 0;
+  align-self: center;
+  width: 17px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: .04em;
+  line-height: 1.1;
+}
+.mx-left b, .mx-right b {
+  writing-mode: horizontal-tb;
+  display: block;
+  margin: 0 0 3px;
+  text-align: center;
+}
 
-.group-table { display: grid; gap: 8px; margin-top: 12px; }
-.gr-row {
+.mx-grid {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+}
+/* 中央を通る十字の軸線 */
+.mx-cross {
+  position: absolute;
+  inset: -10px;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
+  pointer-events: none;
+  z-index: 1;
+  preserveAspectRatio: none;
+}
+
+.mx-cell {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 11px 13px;
-  border-radius: 13px;
-  text-decoration: none;
+  flex-direction: column;
+  border-radius: 16px;
+  padding: 10px 9px 10px;
   color: inherit;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
 }
-.gr-row:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
-.gr-mark { width: 8px; height: 34px; border-radius: 999px; flex-shrink: 0; }
-.gr-body { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 9px; }
-.gr-name { font-size: 15px; font-weight: 900; }
-.gr-lead { font-size: 12.5px; color: #3d4d46; }
-.gr-axis { font-size: 11.5px; color: var(--stone); flex-basis: 100%; }
-
-.legend-plain { margin-bottom: 14px; }
+/* キャラクター1体ずつが個別のリンク */
+.mx-char {
+  display: block;
+  border-radius: 10px;
+  padding: 1px;
+  transition: background .15s;
+}
+.mx-char:hover { background: rgba(255, 255, 255, .55); }
+.mx-char:focus-visible { outline: 3px solid var(--sun); outline-offset: 1px; }
+.mx-char svg { display: block; width: 100%; height: auto; }
+/* 背景に薄く大きく系統名 */
+/* 系統名は薄い大文字のみ。左の2つは左上、右の2つは右上に置く */
+.mx-bg {
+  position: absolute;
+  top: 6px;
+  z-index: 0;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  line-height: 1.05;
+  opacity: .2;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.mx-l .mx-bg { left: 10px; }
+.mx-r .mx-bg { right: 10px; }
+/* 下段は文字を下に置く */
+.mx-bottom .mx-bg { top: auto; bottom: 6px; }
+.mx-bottom .mx-lead { order: 2; margin-top: 6px; margin-bottom: 34px; }
+.mx-bottom .mx-chars { order: 1; margin-top: 2px; }
+.mx-r { text-align: right; }
+.mx-r .mx-code { text-align: left; }
+.mx-name {
+  position: relative;
+  display: block;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+.mx-lead {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #3d4d46;
+  margin-top: 34px;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+.mx-chars {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+  margin: 8px 0 6px;
+}
+.mx-chars svg { width: 100%; height: auto; display: block; }
+.mx-code {
+  position: relative;
+  display: block;
+  text-align: right;
+  font-family: "Outfit", var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--stone);
+}
 
 /* =========================================================
    結果画面：ヒーロー帯と波の区切り
@@ -909,11 +1428,11 @@ body {
 
 /* 4軸のタグ */
 .result-axtags {
+  margin-top: 14px;
   display: grid;
   grid-template-columns: repeat(2, auto);
   justify-content: center;
   gap: 6px;
-  margin-top: 20px;
 }
 @media (min-width: 460px) {
   .result-axtags { grid-template-columns: repeat(4, auto); }
@@ -950,9 +1469,10 @@ body {
   border-bottom: 2.5px solid var(--pine);
   line-height: 1.4;
 }
-.panel-caution .panel-title { border-bottom-color: var(--sun); }
+
 .panel-body { text-align: left; }
 .axes { text-align: left; }
+.axes-title-wrap { text-align: center; }
 
 /* =========================================================
    結果画面：順番に現れる演出
@@ -966,8 +1486,16 @@ body {
   animation-delay: calc(var(--i, 0) * .12s);
 }
 .result.reveal .result-char {
-  animation: resPop .55s cubic-bezier(.2, 1.3, .4, 1) forwards;
-  animation-delay: calc(var(--i, 0) * .12s);
+  /* 跳ねて現れたあと、ゆっくり上下に揺れ続ける */
+  animation:
+    resPop .55s cubic-bezier(.2, 1.3, .4, 1) forwards,
+    resFloat 4.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * .12s), calc(var(--i, 0) * .12s + .55s);
+}
+
+@keyframes resFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
 }
 .result.reveal .result-hero { opacity: 1; animation: none; }
 
@@ -987,3 +1515,394 @@ body {
   .result.reveal .result-hero > *:not(.wave),
   .result.reveal .result-char { animation: none; }
 }
+
+/* hidden 属性は常に非表示を優先する */
+[hidden] { display: none !important; }
+
+/* =========================================================
+   シークレットキャラクター
+   ========================================================= */
+.secret-badge {
+  display: inline-block;
+  font-family: "Outfit", var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: #4A3410;
+  background: linear-gradient(100deg, #F7DC8C, #E0A33B 55%, #C98F22);
+  border-radius: 999px;
+  padding: 6px 20px;
+  margin-bottom: 7px;
+  box-shadow: 0 2px 8px rgba(176, 130, 30, .4);
+}
+.secret-lead {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #8a6a20;
+  margin-bottom: 10px;
+}
+.secret-spark i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #F0C860, rgba(240, 200, 96, 0));
+  border-radius: 50%;
+}
+.result.is-secret .result-hero { box-shadow: inset 0 0 60px rgba(224, 163, 59, .22); }
+.result-hero { position: relative; }
+
+.secret-note {
+  font-size: 12px;
+  color: #4a5a52;
+  margin-top: 12px;
+  padding: 0 10px;
+  line-height: 1.75;
+}
+
+/* シークレットは動物名が長いので一段小さく */
+.result.is-secret .result-animal { font-size: 27px; letter-spacing: .02em; }
+@media (max-width: 380px) {
+  .result.is-secret .result-animal { font-size: 24px; }
+}
+
+/* シークレットのときだけキャラクターをゆっくり光らせる */
+.result.is-secret .result-char {
+  filter: drop-shadow(0 0 18px rgba(224, 163, 59, .45));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .result.is-secret.reveal .result-char { animation-duration: .9s; }
+}
+
+/* =========================================================
+   紹介ページ：相性3人を1行3列に
+   ========================================================= */
+.match-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.type-item .match-row .match {
+  display: block;
+  text-align: center;
+  border-radius: 14px;
+  padding: 11px 8px 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.type-item .match-row .char-sm { width: 58px; margin: 4px auto 5px; display: block; }
+.type-item .match-row .match-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--stone);
+  line-height: 1.4;
+  min-height: 2.8em;
+}
+.type-item .match-row .match-code {
+  display: inline-block;
+  font-family: "Outfit", var(--font);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+.type-item .match-row .match-name {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 900;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+.type-item .match-row .match-type {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--stone);
+  margin-top: 1px;
+  line-height: 1.4;
+}
+.type-item .match-row .match-why {
+  display: block;
+  font-size: 10.5px;
+  color: #4a5a52;
+  margin-top: 6px;
+  line-height: 1.65;
+  text-align: left;
+}
+@media (max-width: 400px) {
+  .match-row { gap: 5px; }
+  .type-item .match-row .match { padding: 9px 5px 10px; }
+  .type-item .match-row .match-why { font-size: 10px; }
+}
+
+/* =========================================================
+   結果画面：相性3人を1行3列に
+   ========================================================= */
+.result .match-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  text-align: left;
+}
+.result .match-row .match {
+  display: block;
+  text-align: center;
+  border-radius: 14px;
+  padding: 11px 7px 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.result .match-row .match:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.result .match-row .char-sm { width: 54px; margin: 4px auto 5px; display: block; }
+.result .match-row .match-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--stone);
+  line-height: 1.45;
+  min-height: 2.9em;
+}
+.result .match-row .match-code {
+  display: inline-block;
+  font-family: "Outfit", var(--font);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+.result .match-row .match-name {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 900;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+.result .match-row .match-type {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--stone);
+  margin-top: 1px;
+  line-height: 1.4;
+}
+.result .match-row .match-why {
+  display: block;
+  font-size: 10.5px;
+  color: #4a5a52;
+  margin-top: 6px;
+  line-height: 1.7;
+  text-align: left;
+}
+@media (max-width: 400px) {
+  .result .match-row { gap: 5px; }
+  .result .match-row .match { padding: 9px 5px 10px; }
+  .result .match-row .match-why { font-size: 10px; }
+}
+
+/* =========================================================
+   結果画面：おすすめの山
+   ========================================================= */
+.mt-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+.mt {
+  background: #F2F5F3;
+  border-radius: 14px;
+  padding: 11px 9px 12px;
+  text-align: left;
+}
+.mt-name {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+  text-align: center;
+}
+.mt-flag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #8a5a10;
+  background: #FBEFD8;
+  border-radius: 999px;
+  padding: 2px 7px;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+.mt-why {
+  font-size: 10.5px;
+  color: #4a5a52;
+  margin-top: 6px;
+  line-height: 1.7;
+}
+.mt-note {
+  font-size: 11px;
+  color: var(--stone);
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  line-height: 1.75;
+  text-align: left;
+}
+@media (max-width: 400px) {
+  .mt-row { gap: 5px; }
+  .mt { padding: 9px 6px 10px; }
+  .mt-name { font-size: 12px; }
+  .mt-why { font-size: 10px; }
+}
+
+/* =========================================================
+   紹介ページ：隠れた姿への切り替え
+   ========================================================= */
+.ti-char-wrap { cursor: default; }
+.type-item.is-secret { box-shadow: 0 2px 14px rgba(176, 130, 30, .24); }
+.type-item.is-secret .tc-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.type-item.is-secret .tc-code em {
+  font-style: normal;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: #4A3410;
+  background: linear-gradient(100deg, #F0C860, #E0A33B);
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+
+/* 詳細カードの生息エリア表記 */
+.tc-area {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-left: 8px;
+  vertical-align: 1px;
+}
+
+/* =========================================================
+   結果ページ上部：横並び（案E）
+   ========================================================= */
+.result-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: left;
+  margin-top: 6px;
+}
+.result-txt { flex: 0 1 auto; }
+.result-row .result-char { margin: 0; flex-shrink: 0; }
+.result-row .result-char .char-lg { width: 128px; display: block; }
+
+.result-row .result-animal { font-size: 27px; margin: 0; line-height: 1.25; }
+.result.is-secret .result-row .result-animal { font-size: 19px; letter-spacing: .02em; }
+.result-row .result-name { font-size: 12.5px; margin-top: 1px; }
+.result-row .result-copy {
+  font-size: 12.5px;
+  margin: 7px 0 0;
+  padding: 0;
+  text-align: left;
+  line-height: 1.6;
+}
+.result-id { margin-top: 12px; }
+.result-code { font-size: 10.5px; padding: 3px 7px 3px 10px; border-radius: 5px; }
+.result-group { font-size: 11px; }
+.result-axtags { margin-top: 10px; grid-template-columns: repeat(4, auto); gap: 4px; }
+.result-axtags span { font-size: 10px; padding: 4px 8px; white-space: nowrap; }
+.result-item { font-size: 10.5px; padding: 4px 12px; margin-top: 8px; }
+@media (max-width: 380px) {
+  .result-row .result-char .char-lg { width: 112px; }
+  .result-row .result-animal { font-size: 24px; }
+}
+
+/* 詳細カード：コードと生息エリアを横並びの下へ */
+.ti-id { text-align: left; margin-top: 12px; }
+.tc-area { margin-left: 8px; vertical-align: 1px; }
+
+/* おすすめの山と相性の文字を少し大きく */
+.type-item .mt-row,
+.result .match-row,
+.type-item .match-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.type-item .mt { background: #F2F5F3; border-radius: 12px; padding: 10px 8px 11px; }
+.type-item .mt-name, .result .mt-name { font-size: 13.5px; font-weight: 900; text-align: center; line-height: 1.45; }
+.type-item .mt-why, .result .mt-why { font-size: 11.5px; color: #4a5a52; margin-top: 5px; line-height: 1.75; }
+.type-item .mt-note, .result .mt-note { font-size: 11.5px; margin-top: 11px; line-height: 1.8; }
+.result .match-row .match-why,
+.type-item .match-row .match-why { font-size: 11.5px; line-height: 1.8; }
+.result .match-row .match-name,
+.type-item .match-row .match-name { font-size: 13.5px; }
+.result .match-row .match-label,
+.type-item .match-row .match-label { font-size: 11px; }
+
+/* エリアタブのアイコン */
+.gtab-icon { width: 40px; height: 38px; display: block; margin: 0 auto 2px; }
+
+/* おすすめの山：県名 */
+.mt-pref {
+  font-size: 10.5px;
+  color: var(--stone);
+  text-align: center;
+  margin-top: 1px;
+  line-height: 1.4;
+}
+
+/* おすすめの山：5座を3列2行で高さを揃える */
+.result .mt-row,
+.type-item .mt-row { align-items: stretch; }
+.result .mt,
+.type-item .mt { display: flex; flex-direction: column; }
+
+/* =========================================================
+   ページ下部のXリンク
+   ========================================================= */
+.site-foot {
+  margin-top: -18px;
+  padding: 0 14px 18px;
+  text-align: right;
+}
+.site-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--stone);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  transition: color .15s, background .15s;
+}
+.site-foot a:hover { color: var(--pine); background: rgba(255, 255, 255, .7); }
+.site-foot a:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.site-foot svg { width: 13px; height: 13px; display: block; }
+
+
+@media (max-width: 380px) {
+  .share-lf { font-size: 8.5px; }
+}
+
+/* 詳細カード：持ちものを4軸タグと同じ行に */
+.ax-item b { font-family: var(--font); font-size: 10px; margin-right: 5px; }
+
+/* 診断の仕組み：目的×仲間と生息エリアの対応 */
+.area-rows { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+.area-row { display: flex; align-items: center; font-size: 12px; padding: 0 2px; }
+.ar-cmb { flex: 1; color: #3d4d46; }
+.ar-arrow { color: #B9C6BF; margin: 0 10px; }
+.ar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 4px 12px 4px 8px;
+}
+.ar-chip b { font-size: 12.5px; font-weight: 900; }
+.ar-chip .gtab-icon { width: 18px; height: 17px; margin: 0; }
